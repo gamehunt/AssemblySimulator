@@ -1,0 +1,30 @@
+{
+	"BUILD_DIR" : "/hdd/Projects/Labs/PS/CourseWork/AssemblySimulator/build/Desktop-Debug/AssemblySimulator_autogen",
+	"CMAKE_BINARY_DIR" : "/hdd/Projects/Labs/PS/CourseWork/AssemblySimulator/build/Desktop-Debug",
+	"CMAKE_CURRENT_BINARY_DIR" : "/hdd/Projects/Labs/PS/CourseWork/AssemblySimulator/build/Desktop-Debug",
+	"CMAKE_CURRENT_SOURCE_DIR" : "/hdd/Projects/Labs/PS/CourseWork/AssemblySimulator",
+	"CMAKE_SOURCE_DIR" : "/hdd/Projects/Labs/PS/CourseWork/AssemblySimulator",
+	"CROSS_CONFIG" : false,
+	"GENERATOR" : "Unix Makefiles",
+	"INCLUDE_DIR" : "/hdd/Projects/Labs/PS/CourseWork/AssemblySimulator/build/Desktop-Debug/AssemblySimulator_autogen/include",
+	"INPUTS" : 
+	[
+		"/hdd/Projects/Labs/PS/CourseWork/AssemblySimulator/icons/bytecode.ico",
+		"/hdd/Projects/Labs/PS/CourseWork/AssemblySimulator/icons/step.ico",
+		"/hdd/Projects/Labs/PS/CourseWork/AssemblySimulator/icons/run.ico",
+		"/hdd/Projects/Labs/PS/CourseWork/AssemblySimulator/icons/x86.ico",
+		"/hdd/Projects/Labs/PS/CourseWork/AssemblySimulator/icons/x64.ico",
+		"/hdd/Projects/Labs/PS/CourseWork/AssemblySimulator/icons/mem.ico"
+	],
+	"LOCK_FILE" : "/hdd/Projects/Labs/PS/CourseWork/AssemblySimulator/build/Desktop-Debug/CMakeFiles/AssemblySimulator_autogen.dir/AutoRcc_icons_EWIEGA46WW_Lock.lock",
+	"MULTI_CONFIG" : false,
+	"OPTIONS" : [ "-name", "icons" ],
+	"OUTPUT_CHECKSUM" : "EWIEGA46WW",
+	"OUTPUT_NAME" : "qrc_icons.cpp",
+	"RCC_EXECUTABLE" : "/usr/lib/qt6/rcc",
+	"RCC_LIST_OPTIONS" : [ "--list" ],
+	"SETTINGS_FILE" : "/hdd/Projects/Labs/PS/CourseWork/AssemblySimulator/build/Desktop-Debug/CMakeFiles/AssemblySimulator_autogen.dir/AutoRcc_icons_EWIEGA46WW_Used.txt",
+	"SOURCE" : "/hdd/Projects/Labs/PS/CourseWork/AssemblySimulator/icons.qrc",
+	"USE_BETTER_GRAPH" : false,
+	"VERBOSITY" : 0
+}

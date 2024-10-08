@@ -1,0 +1,10 @@
+<RCC>
+    <qresource prefix="/">
+        <file>icons/step.ico</file>
+        <file>icons/run.ico</file>
+        <file>icons/bytecode.ico</file>
+        <file>icons/mem.ico</file>
+        <file>icons/x86.ico</file>
+        <file>icons/x64.ico</file>
+    </qresource>
+</RCC>

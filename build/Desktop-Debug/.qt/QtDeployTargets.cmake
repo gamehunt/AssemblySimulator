@@ -1,0 +1,2 @@
+set(__QT_DEPLOY_TARGET_AssemblySimulator_FILE /hdd/Projects/Labs/PS/CourseWork/AssemblySimulator/build/Desktop-Debug/AssemblySimulator)
+set(__QT_DEPLOY_TARGET_AssemblySimulator_TYPE EXECUTABLE)
