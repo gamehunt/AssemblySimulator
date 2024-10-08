@@ -1,9 +1,0 @@
-/hdd/Projects/Labs/PS/CourseWork/AssemblySimulator/build/Desktop-Debug/CMakeFiles/AssemblySimulator.dir
-/hdd/Projects/Labs/PS/CourseWork/AssemblySimulator/build/Desktop-Debug/CMakeFiles/edit_cache.dir
-/hdd/Projects/Labs/PS/CourseWork/AssemblySimulator/build/Desktop-Debug/CMakeFiles/rebuild_cache.dir
-/hdd/Projects/Labs/PS/CourseWork/AssemblySimulator/build/Desktop-Debug/CMakeFiles/list_install_components.dir
-/hdd/Projects/Labs/PS/CourseWork/AssemblySimulator/build/Desktop-Debug/CMakeFiles/install.dir
-/hdd/Projects/Labs/PS/CourseWork/AssemblySimulator/build/Desktop-Debug/CMakeFiles/install/local.dir
-/hdd/Projects/Labs/PS/CourseWork/AssemblySimulator/build/Desktop-Debug/CMakeFiles/install/strip.dir
-/hdd/Projects/Labs/PS/CourseWork/AssemblySimulator/build/Desktop-Debug/CMakeFiles/AssemblySimulator_autogen_timestamp_deps.dir
-/hdd/Projects/Labs/PS/CourseWork/AssemblySimulator/build/Desktop-Debug/CMakeFiles/AssemblySimulator_autogen.dir
