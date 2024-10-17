@@ -24,7 +24,16 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
         icons.qrc
-        states/amd64states.h states/amd64states.cpp states/amd64states.ui
+        assembly.h
+        statemanager.h
+        assemblies/amd64/amd64states.h assemblies/amd64/amd64states.cpp assemblies/amd64/amd64states.ui
+        assemblies/amd64/amd64assembly.h assemblies/amd64/amd64assembly.cpp
+
+        utils.h
+        assembly.cpp
+        statemanager.cpp
+
+
     )
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET AssemblySimulator APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR

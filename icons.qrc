@@ -6,5 +6,7 @@
         <file>icons/mem.ico</file>
         <file>icons/x86.ico</file>
         <file>icons/x64.ico</file>
+        <file>icons/stop.ico</file>
+        <file>icons/reset.ico</file>
     </qresource>
 </RCC>

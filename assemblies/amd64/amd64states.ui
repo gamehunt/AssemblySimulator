@@ -16,6 +16,12 @@
     <verstretch>0</verstretch>
    </sizepolicy>
   </property>
+  <property name="minimumSize">
+   <size>
+    <width>718</width>
+    <height>128</height>
+   </size>
+  </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
@@ -30,7 +36,19 @@
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="raxValue">
+      <widget class="QLabel" name="rax">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>133</width>
+         <height>21</height>
+        </size>
+       </property>
        <property name="frameShape">
         <enum>QFrame::Shape::WinPanel</enum>
        </property>
@@ -54,7 +72,19 @@
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="rbxValue">
+      <widget class="QLabel" name="rbx">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>133</width>
+         <height>21</height>
+        </size>
+       </property>
        <property name="frameShape">
         <enum>QFrame::Shape::WinPanel</enum>
        </property>
@@ -78,7 +108,13 @@
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="rcxValue">
+      <widget class="QLabel" name="rcx">
+       <property name="minimumSize">
+        <size>
+         <width>133</width>
+         <height>21</height>
+        </size>
+       </property>
        <property name="frameShape">
         <enum>QFrame::Shape::WinPanel</enum>
        </property>
@@ -102,7 +138,13 @@
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="rdxValue">
+      <widget class="QLabel" name="rdx">
+       <property name="minimumSize">
+        <size>
+         <width>133</width>
+         <height>21</height>
+        </size>
+       </property>
        <property name="frameShape">
         <enum>QFrame::Shape::WinPanel</enum>
        </property>
@@ -126,7 +168,13 @@
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="label_14">
+      <widget class="QLabel" name="rdi">
+       <property name="minimumSize">
+        <size>
+         <width>133</width>
+         <height>21</height>
+        </size>
+       </property>
        <property name="frameShape">
         <enum>QFrame::Shape::WinPanel</enum>
        </property>
@@ -150,7 +198,13 @@
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="label_10">
+      <widget class="QLabel" name="rsi">
+       <property name="minimumSize">
+        <size>
+         <width>133</width>
+         <height>21</height>
+        </size>
+       </property>
        <property name="frameShape">
         <enum>QFrame::Shape::WinPanel</enum>
        </property>
@@ -174,7 +228,13 @@
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="label_12">
+      <widget class="QLabel" name="rsp">
+       <property name="minimumSize">
+        <size>
+         <width>133</width>
+         <height>21</height>
+        </size>
+       </property>
        <property name="frameShape">
         <enum>QFrame::Shape::WinPanel</enum>
        </property>
@@ -198,7 +258,13 @@
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="label_16">
+      <widget class="QLabel" name="rbp">
+       <property name="minimumSize">
+        <size>
+         <width>133</width>
+         <height>21</height>
+        </size>
+       </property>
        <property name="frameShape">
         <enum>QFrame::Shape::WinPanel</enum>
        </property>
@@ -222,7 +288,13 @@
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="label_18">
+      <widget class="QLabel" name="r8">
+       <property name="minimumSize">
+        <size>
+         <width>133</width>
+         <height>21</height>
+        </size>
+       </property>
        <property name="frameShape">
         <enum>QFrame::Shape::WinPanel</enum>
        </property>
@@ -246,7 +318,13 @@
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="label_20">
+      <widget class="QLabel" name="r9">
+       <property name="minimumSize">
+        <size>
+         <width>133</width>
+         <height>21</height>
+        </size>
+       </property>
        <property name="frameShape">
         <enum>QFrame::Shape::WinPanel</enum>
        </property>
@@ -270,7 +348,13 @@
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="label_22">
+      <widget class="QLabel" name="r10">
+       <property name="minimumSize">
+        <size>
+         <width>133</width>
+         <height>21</height>
+        </size>
+       </property>
        <property name="frameShape">
         <enum>QFrame::Shape::WinPanel</enum>
        </property>
@@ -294,7 +378,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="label_24">
+      <widget class="QLabel" name="r11">
        <property name="frameShape">
         <enum>QFrame::Shape::WinPanel</enum>
        </property>
@@ -318,7 +402,13 @@
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="label_30">
+      <widget class="QLabel" name="r12">
+       <property name="minimumSize">
+        <size>
+         <width>133</width>
+         <height>21</height>
+        </size>
+       </property>
        <property name="frameShape">
         <enum>QFrame::Shape::WinPanel</enum>
        </property>
@@ -342,7 +432,13 @@
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="label_28">
+      <widget class="QLabel" name="r13">
+       <property name="minimumSize">
+        <size>
+         <width>133</width>
+         <height>21</height>
+        </size>
+       </property>
        <property name="frameShape">
         <enum>QFrame::Shape::WinPanel</enum>
        </property>
@@ -366,7 +462,13 @@
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="label_26">
+      <widget class="QLabel" name="r14">
+       <property name="minimumSize">
+        <size>
+         <width>133</width>
+         <height>21</height>
+        </size>
+       </property>
        <property name="frameShape">
         <enum>QFrame::Shape::WinPanel</enum>
        </property>
@@ -390,7 +492,13 @@
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="label_32">
+      <widget class="QLabel" name="r15">
+       <property name="minimumSize">
+        <size>
+         <width>133</width>
+         <height>21</height>
+        </size>
+       </property>
        <property name="frameShape">
         <enum>QFrame::Shape::WinPanel</enum>
        </property>
