@@ -163,7 +163,8 @@ void AMD64Assembly::executeLine(QString line) {
                 }
                 line++;
             }
-            throw std::runtime_error("invalid label");
+            nextLine = value(args[0]);
+            break;
         }
     }
 
