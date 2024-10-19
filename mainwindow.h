@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include "assembly.h"
+#include "memorybrowserwidget.h"
 
 #include <QComboBox>
 #include <QMainWindow>
@@ -27,6 +28,7 @@ public slots:
     void updateStack(QStringList v);
     void setAssembly(Assembly* a);
     void showDisasm();
+    void showMemoryBrowser();
     void execute();
     void step();
     void stop();
@@ -34,6 +36,8 @@ public slots:
 
 private:
     Ui::MainWindow *ui;
+
+    MemoryBrowserWidget memory;
 
     QStandardItemModel stackModel;
     QMap<QString, Assembly*> assemblies;

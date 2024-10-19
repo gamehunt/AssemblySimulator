@@ -32,6 +32,8 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         utils.h
         assembly.cpp
         statemanager.cpp
+        memorybrowserwidget.h memorybrowserwidget.cpp memorybrowserwidget.ui
+        memory.h memory.cpp
 
 
     )

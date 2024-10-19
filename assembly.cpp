@@ -3,26 +3,19 @@
 Assembly::Assembly(QObject* o){
     currentLine = 0;
     nextLine = 0;
+
+    QObject::connect(&memory, &Memory::stackChanged, this, &Assembly::emitStack);
 }
 
-void Assembly::push(uint64_t v) {
-    stack.push(v);
+void Assembly::emitStack(uint64_t ptr) {
     QStringList r;
-    for(uint64_t v : std::as_const(stack)) {
-        r.push_back(toHex(v, state.getWidth()));
+    while(ptr < memory.getStackAddress()) {
+        r.push_back(toHex(memory.get<uint64_t>(ptr), state.getWidth()));
+        ptr += 8;
     }
     emit stackChanged(r);
 }
 
-uint64_t Assembly::pop() {
-    uint64_t v = stack.pop();
-    QStringList r;
-    for(uint64_t _v : std::as_const(stack)) {
-        r.push_back(toHex(_v, state.getWidth()));
-    }
-    emit stackChanged(r);
-    return v;
-}
 
 void Assembly::setCode(QStringList c) {
     code = c;
@@ -32,14 +25,13 @@ StateManager* Assembly::getState() {
     return &state;
 }
 
-QStack<uint64_t>* Assembly::getStack() {
-    return &stack;
+Memory* Assembly::getMemory() {
+    return &memory;
 }
 
 void Assembly::reset() {
     nextLine = currentLine = 0;
-    stack.clear();
-    emit stackChanged({});
+    memory.reset();
     code.clear();
     state.reset();
 }

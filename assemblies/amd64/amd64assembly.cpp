@@ -52,12 +52,10 @@ AMD64Assembly::AMD64Assembly() {
     QTimer::singleShot(1, this, &AMD64Assembly::reset);
 }
 
-#define STACK_BASE 0xFFFFFFFF00000000
-
 void AMD64Assembly::reset() {
     Assembly::reset();
-    state.set("rbp", STACK_BASE);
-    state.set("rsp", STACK_BASE);
+    state.set("rbp", Memory::getStackAddress());
+    state.set("rsp", Memory::getStackAddress());
 }
 
 
@@ -119,13 +117,13 @@ void AMD64Assembly::executeLine(QString line) {
             break;
         case PUSH:
             parse_args(args, 1);
-            push(value(args[0]));
-            state.set("rsp", STACK_BASE - stack.size() * 8);
+            memory.push(value(args[0]));
+            state.set("rsp", memory.getStackPointer());
             break;
         case POP:
             parse_args(args, 1);
-            state.set(args[0], pop());
-            state.set("rsp", STACK_BASE - stack.size() * 8);
+            state.set(args[0], memory.pop());
+            state.set("rsp", memory.getStackPointer());
             break;
         case INC:
             parse_args(args, 1);

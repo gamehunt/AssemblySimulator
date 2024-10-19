@@ -1,6 +1,7 @@
 #ifndef ASSEMBLY_H
 #define ASSEMBLY_H
 
+#include "memory.h"
 #include "statemanager.h"
 
 #include <QApplication>
@@ -9,17 +10,14 @@
 
 class Assembly: public QObject
 {
-    Q_OBJECT;
+    Q_OBJECT
 public:
     explicit Assembly(QObject* o = nullptr);
-
-    void push(uint64_t v);
-    uint64_t pop();
 
     void setCode(QStringList c);
 
     StateManager* getState();
-    QStack<uint64_t>* getStack();
+    Memory*       getMemory();
 
 public slots:
     virtual void error(QString err);
@@ -29,13 +27,16 @@ public slots:
     virtual void stop();
     virtual void reset();
 
+protected slots:
+    void emitStack(uint64_t ptr);
+
 signals:
     void stackChanged(QStringList);
     void errorOccured(QString);
     void lineExecuted();
 
 protected:
-    QStack<uint64_t> stack;
+    Memory           memory;
     StateManager     state;
     QStringList      code;
     int              currentLine, nextLine;

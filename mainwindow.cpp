@@ -25,6 +25,8 @@ MainWindow::MainWindow(QWidget *parent)
     QObject::connect(ui->stepPushButton, &QPushButton::clicked, this, &MainWindow::step);
     QObject::connect(ui->stopPushButton, &QPushButton::clicked, this, &MainWindow::stop);
     QObject::connect(ui->resetPushButton, &QPushButton::clicked, this, &MainWindow::reset);
+    QObject::connect(ui->disasmPushButton, &QPushButton::clicked, this, &MainWindow::showDisasm);
+    QObject::connect(ui->memPushButton, &QPushButton::clicked, this, &MainWindow::showMemoryBrowser);
 }
 
 MainWindow::~MainWindow()
@@ -84,8 +86,13 @@ void MainWindow::stop() {
 
 void MainWindow::reset() {
     curAssembly->reset();
+    curAssembly->setCode(ui->textEdit->toPlainText().split("\n"));
 }
 
 void MainWindow::showDisasm() {
 
+}
+
+void MainWindow::showMemoryBrowser() {
+    memory.show();
 }
