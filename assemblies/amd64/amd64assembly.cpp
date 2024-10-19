@@ -31,6 +31,8 @@ enum OP_TYPE {
     JLE,
     JGE,
     JC,
+    CALL,
+    RET
 };
 
 static const QMap<QString, OP_TYPE> __ops = {
@@ -55,6 +57,8 @@ static const QMap<QString, OP_TYPE> __ops = {
     {"jge" , JGE  },
     {"jle" , JLE  },
     {"jc"  , JC   },
+    {"call", CALL },
+    {"ret" , RET  }
 };
 
 #define parse_args(args, n) args = _args.split(","); if (args.size() < n) { throw std::runtime_error("more args required"); }
@@ -145,7 +149,7 @@ int AMD64Assembly::jump(QString arg) {
             return line;
         }
     }
-    return value(arg);
+    return value(arg) / 8;
 }
 
 void AMD64Assembly::executeLine(QString line) {
@@ -156,7 +160,7 @@ void AMD64Assembly::executeLine(QString line) {
     QString _args;
     QStringList args;
 
-    int64_t diff = 0;
+    int64_t v = 0;
 
     op = splitted[0];
     for(int i = 1; i < splitted.size(); i++) {
@@ -218,8 +222,8 @@ void AMD64Assembly::executeLine(QString line) {
             break;
         case CMP:
             parse_args(args, 2);
-            diff  = value(args[0]) - value(args[1]);
-            setFlag(FL_ZF, diff == 0);
+            v = value(args[0]) - value(args[1]);
+            setFlag(FL_ZF, v == 0);
             // TODO others
             break;
         case JE:
@@ -239,6 +243,17 @@ void AMD64Assembly::executeLine(QString line) {
         case JMP:
             parse_args(args, 1);
             nextLine = jump(args[0]);
+            return;
+        case CALL:
+            parse_args(args, 1);
+            memory.push((currentLine + 1) * 8);
+            state.set("rsp", memory.getStackPointer());
+            nextLine = jump(args[0]);
+            return;
+        case RET:
+            v = memory.pop();
+            state.set("rsp", memory.getStackPointer());
+            nextLine = v / 8;
             return;
         default:
             throw std::runtime_error("unimplemented opcode");
