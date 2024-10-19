@@ -24,7 +24,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     registerAssembly("x86-64", new AMD64Assembly);
 
-    QObject::connect(ui->textEdit, &QTextEdit::textChanged, this, [this](){ curAssembly->setCode(ui->textEdit->toPlainText().split("\n")); });
+    QObject::connect(ui->textEdit, &QPlainTextEdit::textChanged, this, [this](){ curAssembly->setCode(ui->textEdit->toPlainText().split("\n")); });
 
     QObject::connect(ui->runPushButton,  &QPushButton::clicked, this, [this](){
         if(running && !paused) {

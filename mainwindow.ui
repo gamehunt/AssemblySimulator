@@ -304,7 +304,7 @@
        <property name="orientation">
         <enum>Qt::Orientation::Horizontal</enum>
        </property>
-       <widget class="QTextEdit" name="textEdit">
+       <widget class="CodeEdit" name="textEdit">
         <property name="readOnly">
          <bool>false</bool>
         </property>
@@ -391,6 +391,13 @@
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>CodeEdit</class>
+   <extends>QTextEdit</extends>
+   <header location="global">codeedit.h</header>
+  </customwidget>
+ </customwidgets>
  <resources>
   <include location="icons.qrc"/>
  </resources>
