@@ -4,6 +4,7 @@
 #include <QTimer>
 
 enum OP_TYPE {
+    NOP,
     MOV,
     PUSH,
     POP,
@@ -17,6 +18,7 @@ enum OP_TYPE {
 };
 
 static const QMap<QString, OP_TYPE> __ops = {
+    {"nop" , NOP  },
     {"mov" , MOV  },
     {"push", PUSH },
     {"pop" , POP  },
@@ -26,7 +28,7 @@ static const QMap<QString, OP_TYPE> __ops = {
     {"sub" , SUB  },
     {"div" , DIV  },
     {"mul" , MUL  },
-    {"jmp" , JMP  }
+    {"jmp" , JMP  },
 };
 
 #define parse_args(args, n) args = _args.split(","); if (args.size() < n) { throw std::runtime_error("more args required"); }
@@ -49,6 +51,8 @@ AMD64Assembly::AMD64Assembly() {
     state.addRegister("r13");
     state.addRegister("r14");
     state.addRegister("r15");
+    state.addRegister("rip");
+    state.addRegister("flags");
     QTimer::singleShot(1, this, &AMD64Assembly::reset);
 }
 
@@ -92,6 +96,7 @@ reg:
 }
 
 void AMD64Assembly::executeLine(QString line) {
+    state.set("rip", currentLine * 8);
 
     QStringList splitted = line.split(" ");
     QString op;
@@ -110,6 +115,8 @@ void AMD64Assembly::executeLine(QString line) {
         // It's a label, skip it
     } else {
         switch(__ops[op]) {
+        case NOP:
+            break;
         case MOV:
             parse_args(args, 2);
             state.set(args[0], value(args[1]));
