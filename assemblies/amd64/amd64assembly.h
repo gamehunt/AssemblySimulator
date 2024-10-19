@@ -16,6 +16,10 @@ public:
     void executeLine(QString line) override;
     void reset() override;
 
+    void    setFlag(uint16_t flag);
+    void    clrFlag(uint16_t flag);
+    uint8_t getFlag(uint16_t flag);
+
 private:
     uint64_t value(QString operand, int mode = MODE_ALL);
 

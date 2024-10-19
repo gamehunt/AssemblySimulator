@@ -3,6 +3,14 @@
 
 #include <QTimer>
 
+#define FL_CF (1 << 0)
+#define FL_PF (1 << 2)
+#define FL_AF (1 << 4)
+#define FL_ZF (1 << 5)
+#define FL_SF (1 << 6)
+#define FL_DF (1 << 10)
+#define FL_OF (1 << 11)
+
 enum OP_TYPE {
     NOP,
     MOV,
@@ -14,7 +22,15 @@ enum OP_TYPE {
     SUB,
     DIV,
     MUL,
-    JMP
+    CMP,
+    JMP,
+    JE,
+    JNE,
+    JG,
+    JL,
+    JLE,
+    JGE,
+    JC,
 };
 
 static const QMap<QString, OP_TYPE> __ops = {
@@ -28,7 +44,15 @@ static const QMap<QString, OP_TYPE> __ops = {
     {"sub" , SUB  },
     {"div" , DIV  },
     {"mul" , MUL  },
+    {"cmp" , CMP  },
     {"jmp" , JMP  },
+    {"je"  , JE   },
+    {"jne" , JNE  },
+    {"jg"  , JG   },
+    {"jl"  , JL   },
+    {"jge" , JGE  },
+    {"jle" , JLE  },
+    {"jc"  , JC   },
 };
 
 #define parse_args(args, n) args = _args.split(","); if (args.size() < n) { throw std::runtime_error("more args required"); }
@@ -95,6 +119,22 @@ reg:
     }
 }
 
+#define set_flag(reg, fl) reg |= fl
+#define clr_flag(reg, fl) reg &= ~fl
+
+void AMD64Assembly::setFlag(uint16_t flag){
+    state.set("flags", state.get("flags") | flag);
+}
+
+void AMD64Assembly::clrFlag(uint16_t flag){
+    state.set("flags", state.get("flags") & ~flag);
+}
+
+uint8_t AMD64Assembly::getFlag(uint16_t flag) {
+    return !!(state.get("flags") & flag);
+}
+
+
 void AMD64Assembly::executeLine(QString line) {
     state.set("rip", currentLine * 8);
 
@@ -102,6 +142,8 @@ void AMD64Assembly::executeLine(QString line) {
     QString op;
     QString _args;
     QStringList args;
+
+    int64_t diff = 0;
 
     op = splitted[0];
     for(int i = 1; i < splitted.size(); i++) {
@@ -120,6 +162,9 @@ void AMD64Assembly::executeLine(QString line) {
         case MOV:
             parse_args(args, 2);
             state.set(args[0], value(args[1]));
+            if(args[0] == "rsp") {
+                memory.setStackPointer(state.get("rsp"));
+            }
             break;
         case PUSH:
             parse_args(args, 1);
@@ -158,6 +203,26 @@ void AMD64Assembly::executeLine(QString line) {
             }
             state.set(args[0], value(args[0]) / value(args[1]));
             break;
+        case CMP:
+            parse_args(args, 2);
+            diff  = value(args[0]) - value(args[1]);
+            if(diff == 0) {
+                setFlag(FL_ZF);
+            } else {
+                clrFlag(FL_ZF);
+            }
+            // TODO others
+            break;
+        case JE:
+            parse_args(args, 1);
+            if(!getFlag(FL_ZF)) {
+                break;
+            }
+        case JNE:
+            parse_args(args, 1);
+            if(getFlag(FL_ZF)) {
+                break;
+            }
         case JMP:
             parse_args(args, 1);
             for(int line = 0; line < code.size(); line++) {
@@ -168,7 +233,10 @@ void AMD64Assembly::executeLine(QString line) {
             }
             nextLine = value(args[0]);
             break;
+        default:
+            throw std::runtime_error("unimplemented opcode");
         }
+
     }
 
     nextLine = currentLine + 1;

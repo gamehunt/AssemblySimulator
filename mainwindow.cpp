@@ -45,7 +45,7 @@ void MainWindow::updateStack(QStringList v) {
     stackModel.clear();
 
     int i = 0;
-    for(QString e : v) {
+    for(QString& e : v) {
         stackModel.appendRow({
             new QStandardItem(QString("+%1").arg(i * 16)),
             new QStandardItem(e)

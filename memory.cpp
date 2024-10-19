@@ -39,11 +39,10 @@ uint64_t Memory::getStackPointer() const
 void Memory::setStackPointer(uint64_t newStackPointer)
 {
     stackPointer = newStackPointer;
+    emit stackChanged(stackPointer);
 }
 
 void Memory::reset() {
-    stackPointer = stackAddress;
-    emit stackChanged(stackPointer);
-
+    setStackPointer(stackAddress);
     memory.clear();
 }
