@@ -48,6 +48,8 @@ static const QMap<QString, OP_TYPE> __ops = {
     {"jmp" , JMP  },
     {"je"  , JE   },
     {"jne" , JNE  },
+    {"jz"  , JE   },
+    {"jnz" , JNE  },
     {"jg"  , JG   },
     {"jl"  , JL   },
     {"jge" , JGE  },
@@ -75,8 +77,8 @@ AMD64Assembly::AMD64Assembly() {
     state.addRegister("r13");
     state.addRegister("r14");
     state.addRegister("r15");
-    state.addRegister("rip");
-    state.addRegister("flags");
+    state.addRegister("rip", false);
+    state.addRegister("flags", false);
     QTimer::singleShot(1, this, &AMD64Assembly::reset);
 }
 
@@ -119,24 +121,31 @@ reg:
     }
 }
 
-#define set_flag(reg, fl) reg |= fl
-#define clr_flag(reg, fl) reg &= ~fl
-
-void AMD64Assembly::setFlag(uint16_t flag){
-    state.set("flags", state.get("flags") | flag);
-}
-
-void AMD64Assembly::clrFlag(uint16_t flag){
-    state.set("flags", state.get("flags") & ~flag);
+void AMD64Assembly::setFlag(uint16_t flag, uint8_t v){
+    uint16_t fl = state.get("flags", true);
+    if(v) {
+        fl |= flag;
+    } else {
+        fl &= ~flag;
+    }
+    state.set("flags",  fl, true);
 }
 
 uint8_t AMD64Assembly::getFlag(uint16_t flag) {
-    return !!(state.get("flags") & flag);
+    return !!(state.get("flags", true) & flag);
 }
 
+int AMD64Assembly::jump(QString arg) {
+    for(int line = 0; line < code.size(); line++) {
+        if(code[line].startsWith(arg) && code[line].endsWith(":")) {
+            return line;
+        }
+    }
+    return value(arg);
+}
 
 void AMD64Assembly::executeLine(QString line) {
-    state.set("rip", currentLine * 8);
+    state.set("rip", currentLine * 8, true);
 
     QStringList splitted = line.split(" ");
     QString op;
@@ -206,33 +215,27 @@ void AMD64Assembly::executeLine(QString line) {
         case CMP:
             parse_args(args, 2);
             diff  = value(args[0]) - value(args[1]);
-            if(diff == 0) {
-                setFlag(FL_ZF);
-            } else {
-                clrFlag(FL_ZF);
-            }
+            setFlag(FL_ZF, diff == 0);
             // TODO others
             break;
         case JE:
             parse_args(args, 1);
-            if(!getFlag(FL_ZF)) {
-                break;
+            if(getFlag(FL_ZF)) {
+                nextLine = jump(args[0]);
+                return;
             }
+            break;
         case JNE:
             parse_args(args, 1);
-            if(getFlag(FL_ZF)) {
-                break;
+            if(!getFlag(FL_ZF)) {
+                nextLine = jump(args[0]);
+                return;
             }
+            break;
         case JMP:
             parse_args(args, 1);
-            for(int line = 0; line < code.size(); line++) {
-                if(code[line].startsWith(args[0]) && code[line].endsWith(":")) {
-                    nextLine = line;
-                    return;
-                }
-            }
-            nextLine = value(args[0]);
-            break;
+            nextLine = jump(args[0]);
+            return;
         default:
             throw std::runtime_error("unimplemented opcode");
         }

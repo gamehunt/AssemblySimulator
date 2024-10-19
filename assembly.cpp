@@ -3,6 +3,7 @@
 Assembly::Assembly(QObject* o){
     currentLine = 0;
     nextLine = 0;
+    stopped = false;
 
     QObject::connect(&memory, &Memory::stackChanged, this, &Assembly::emitStack);
 }
@@ -31,20 +32,20 @@ Memory* Assembly::getMemory() {
 
 void Assembly::reset() {
     nextLine = currentLine = 0;
+    stopped = false;
     memory.reset();
     code.clear();
     state.reset();
 }
 
 void Assembly::error(QString err) {
-    stop();
+    currentLine = nextLine = -1;
     emit errorOccured(err);
 }
 
 void Assembly::execute() {
-    currentLine = 0;
-    nextLine = 0;
-    while(currentLine >= 0 && currentLine < code.size()) {
+    stopped = false;
+    while(!stopped && currentLine >= 0 && currentLine < code.size()) {
         step();
         QApplication::processEvents();
     }
@@ -67,5 +68,13 @@ void Assembly::executeLine(QString l) {
 }
 
 void Assembly::stop() {
-    nextLine = currentLine = -1;
+    stopped = true;
+}
+
+bool Assembly::isFinished() const {
+    return currentLine >= code.size();
+}
+
+int Assembly::getCurrentLine() {
+    return currentLine;
 }

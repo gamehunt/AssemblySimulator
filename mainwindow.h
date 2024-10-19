@@ -29,10 +29,14 @@ public slots:
     void setAssembly(Assembly* a);
     void showDisasm();
     void showMemoryBrowser();
-    void execute();
-    void step();
+    void run();
+    void step(bool b);
     void stop();
+    void pause();
     void reset();
+
+private slots:
+    void updateButtonStates();
 
 private:
     Ui::MainWindow *ui;
@@ -42,5 +46,7 @@ private:
     QStandardItemModel stackModel;
     QMap<QString, Assembly*> assemblies;
     Assembly* curAssembly;
+
+    bool running, paused;
 };
 #endif // MAINWINDOW_H

@@ -5,15 +5,20 @@
 #include <QLabel>
 #include <QWidget>
 
+struct Register {
+    uint64_t value;
+    bool direct;
+};
+
 class StateManager
 {
 public:
     StateManager(): _representation(nullptr), w(16) {;}
 
-    void set(QString r, uint64_t v);
-    uint64_t get(QString v) const;
+    void set(QString r, uint64_t v, bool allowIndirect = false);
+    uint64_t get(QString v, bool allowIndirect = false) const;
 
-    void addRegister(QString r);
+    void addRegister(QString r, bool direct = true);
     bool hasRegister(QString r) const;
 
     void setRepresentationWidget(QWidget* w);
@@ -26,7 +31,7 @@ public:
     void refresh();
 
 private:
-    QMap<QString, uint64_t> _state;
+    QMap<QString, Register> _state;
     QWidget*                _representation;
 
     int w;

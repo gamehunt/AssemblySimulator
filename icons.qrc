@@ -8,5 +8,8 @@
         <file>icons/x64.ico</file>
         <file>icons/stop.ico</file>
         <file>icons/reset.ico</file>
+        <file>icons/stepBackward.ico</file>
+        <file>icons/stepForward.ico</file>
+        <file>icons/pause.ico</file>
     </qresource>
 </RCC>

@@ -19,6 +19,9 @@ public:
     StateManager* getState();
     Memory*       getMemory();
 
+    bool isFinished() const;
+    int  getCurrentLine();
+
 public slots:
     virtual void error(QString err);
     virtual void execute();
@@ -40,6 +43,7 @@ protected:
     StateManager     state;
     QStringList      code;
     int              currentLine, nextLine;
+    bool             stopped;
 };
 
 #endif // ASSEMBLY_H
