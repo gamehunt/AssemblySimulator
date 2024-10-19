@@ -107,8 +107,7 @@ void AMD64Assembly::executeLine(QString line) {
         if(!op.endsWith(":")) {
             throw std::runtime_error("Unknown opcode");
         }
-
-        // Label...
+        // It's a label, skip it
     } else {
         switch(__ops[op]) {
         case MOV:
@@ -159,7 +158,6 @@ void AMD64Assembly::executeLine(QString line) {
                     nextLine = line;
                     return;
                 }
-                line++;
             }
             nextLine = value(args[0]);
             break;
