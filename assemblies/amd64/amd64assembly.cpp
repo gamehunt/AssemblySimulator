@@ -98,6 +98,10 @@ uint64_t AMD64Assembly::value(QString s, int mode) {
         goto reg;
     }
 
+    if(s.startsWith("[") && s.endsWith("]")) {
+        return memory.get<uint64_t>(value(s.mid(1, s.length() - 2)));
+    }
+
     if(s.startsWith("0") && s.size() > 3) {
         if(s[1] == 'x') {
             base = 16;

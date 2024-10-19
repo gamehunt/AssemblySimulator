@@ -50,6 +50,8 @@ public:
 
     void reset();
 
+    QMap<uint64_t, uint8_t>& getRaw();
+
 signals:
     void stackChanged(uint64_t stackPointer);
 

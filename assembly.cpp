@@ -45,14 +45,14 @@ void Assembly::error(QString err) {
 
 void Assembly::execute() {
     stopped = false;
-    while(!stopped && currentLine >= 0 && currentLine < code.size()) {
+    while(!stopped && !isFinished()) {
         step();
         QApplication::processEvents();
     }
 }
 
 void Assembly::step() {
-    if(currentLine < code.size()) {
+    if(!isFinished()) {
         try {
             executeLine(code[currentLine]);
             emit lineExecuted();
@@ -72,7 +72,7 @@ void Assembly::stop() {
 }
 
 bool Assembly::isFinished() const {
-    return currentLine >= code.size();
+    return currentLine < 0 || currentLine >= code.size();
 }
 
 int Assembly::getCurrentLine() {

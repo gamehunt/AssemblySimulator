@@ -18,6 +18,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->resetPushButton->setVisible(false);
 
     running = paused = false;
+    curAssembly = nullptr;
 
     QObject::connect(ui->assembliesComboBox, &QComboBox::currentTextChanged, this, [this](QString v) {setAssembly(assemblies[v]);});
 
@@ -75,7 +76,9 @@ void MainWindow::updateStack(QStringList v) {
 
 void MainWindow::setAssembly(Assembly* a) {
     stackModel.clear();
-    ui->stateFrame->layout()->removeWidget(curAssembly->getState()->getReprentationWidget());
+    if(curAssembly) {
+        ui->stateFrame->layout()->removeWidget(curAssembly->getState()->getReprentationWidget());
+    }
     ui->stateFrame->layout()->addWidget(a->getState()->getReprentationWidget());
     curAssembly = a;
 }
@@ -112,9 +115,10 @@ void MainWindow::pause() {
 }
 
 void MainWindow::step(bool b) {
-    curAssembly->step();
     if(curAssembly->isFinished()) {
         reset();
+    } else {
+        curAssembly->step();
     }
 }
 
@@ -136,5 +140,6 @@ void MainWindow::showDisasm() {
 }
 
 void MainWindow::showMemoryBrowser() {
+    memory.setup(curAssembly);
     memory.show();
 }

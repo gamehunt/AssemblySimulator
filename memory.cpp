@@ -46,3 +46,7 @@ void Memory::reset() {
     setStackPointer(stackAddress);
     memory.clear();
 }
+
+QMap<uint64_t, uint8_t>& Memory::getRaw() {
+    return memory;
+}
