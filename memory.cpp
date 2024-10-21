@@ -45,6 +45,7 @@ void Memory::setStackPointer(uint64_t newStackPointer)
 void Memory::reset() {
     setStackPointer(stackAddress);
     memory.clear();
+    emit memoryChanged(0, 0, 0);
 }
 
 QMap<uint64_t, uint8_t>& Memory::getRaw() {

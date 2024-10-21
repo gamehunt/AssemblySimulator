@@ -54,8 +54,8 @@ void Assembly::execute() {
 void Assembly::step() {
     if(!isFinished()) {
         try {
+            emit lineExecuted(currentLine);
             executeLine(code[currentLine]);
-            emit lineExecuted();
         } catch(std::exception& e) {
             error(e.what());
         }

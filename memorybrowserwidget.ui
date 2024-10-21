@@ -72,6 +72,9 @@
      </item>
      <item>
       <widget class="QPushButton" name="pushButton">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="text">
         <string>Push</string>
        </property>
@@ -79,6 +82,9 @@
      </item>
      <item>
       <widget class="QPushButton" name="popButton">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="text">
         <string>Pop</string>
        </property>

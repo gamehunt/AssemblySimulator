@@ -11,12 +11,15 @@ public:
     void lineNumberAreaPaintEvent(QPaintEvent *event);
     int lineNumberAreaWidth();
 
+public slots:
+    void setExecutedLine(int line);
+    void highlightCurrentLine();
+
 protected:
     void resizeEvent(QResizeEvent *event) override;
 
 private slots:
     void updateLineNumberAreaWidth(int newBlockCount);
-    void highlightCurrentLine();
     void updateLineNumberArea(const QRect &rect, int dy);
 
 private:

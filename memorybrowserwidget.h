@@ -28,6 +28,8 @@ public slots:
     void editData(QModelIndex index);
     void push();
     void pop();
+    void refresh();
+
 
 protected slots:
     void updateButtonStates();

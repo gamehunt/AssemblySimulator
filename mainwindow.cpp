@@ -64,7 +64,7 @@ void MainWindow::updateStack(QStringList v) {
     int i = 0;
     for(QString& e : v) {
         stackModel.appendRow({
-            new QStandardItem(QString("+%1").arg(i * 16)),
+            new QStandardItem(QString("+%1").arg(i * 8)),
             new QStandardItem(e)
         });
         i++;
@@ -77,12 +77,15 @@ void MainWindow::updateStack(QStringList v) {
 void MainWindow::setAssembly(Assembly* a) {
     stackModel.clear();
     if(curAssembly) {
+        QObject::disconnect(curAssembly->getMemory(), &Memory::memoryChanged, &memory, &MemoryBrowserWidget::refresh);
         ui->stateFrame->layout()->removeWidget(curAssembly->getState()->getReprentationWidget());
     }
     QWidget* repr = a->getState()->getReprentationWidget();
     ui->stateFrame->layout()->addWidget(repr);
     ui->splitter->setSizes({ui->textEdit->maximumWidth(), repr->minimumWidth()});
     curAssembly = a;
+    QObject::connect(curAssembly->getMemory(), &Memory::memoryChanged, &memory, &MemoryBrowserWidget::refresh);
+    QObject::connect(curAssembly, &Assembly::lineExecuted, ui->textEdit, &CodeEdit::setExecutedLine);
 }
 
 void MainWindow::updateButtonStates() {
@@ -95,7 +98,12 @@ void MainWindow::updateButtonStates() {
     }
     ui->runPausedButton->setEnabled(!running);
     ui->stepForwardPushButton->setEnabled(paused);
-    ui->textEdit->setEnabled(!running);
+    ui->textEdit->setReadOnly(running);
+    if(!ui->textEdit->isReadOnly()) {
+        ui->textEdit->highlightCurrentLine();
+    } else {
+        ui->textEdit->setExtraSelections({});
+    }
     ui->stopPushButton->setEnabled(running);
 }
 

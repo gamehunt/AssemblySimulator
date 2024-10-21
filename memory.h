@@ -14,7 +14,9 @@ public:
     template<typename T> void set(uint64_t address, T value) {
         int size = sizeof(T);
         if(size == 1) {
+            uint8_t old = memory.value(address, 0);
             memory[address] = value;
+            emit memoryChanged(address, old, value);
         } else {
             for(int i = 0; i < size; i++) {
                 set<uint8_t>(address + i, ((value >> (i * 8)) & 0xFF));
@@ -53,6 +55,7 @@ public:
     QMap<uint64_t, uint8_t>& getRaw();
 
 signals:
+    void memoryChanged(uint64_t addr, uint8_t oldValue, uint8_t newValue);
     void stackChanged(uint64_t stackPointer);
 
 protected:

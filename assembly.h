@@ -36,7 +36,7 @@ protected slots:
 signals:
     void stackChanged(QStringList);
     void errorOccured(QString);
-    void lineExecuted();
+    void lineExecuted(int line);
 
 protected:
     Memory           memory;
