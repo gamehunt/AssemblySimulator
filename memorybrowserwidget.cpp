@@ -52,6 +52,10 @@ void MemoryBrowserWidget::setup(Assembly* a) {
     curAssembly = a;
     model.clear();
 
+    if(!curAssembly) {
+        goto end;
+    }
+
     QMap<uint64_t, uint8_t>& mem = curAssembly->getMemory()->getRaw();
 
     int w = curAssembly->getState()->getWidth();
@@ -76,6 +80,7 @@ void MemoryBrowserWidget::setup(Assembly* a) {
         values[addr] = v;
     }
 
+end:
     for(auto key: persistentData.keys()) {
         addresses.append(key);
         uint64_t v = persistentData[key];
@@ -91,6 +96,7 @@ void MemoryBrowserWidget::setup(Assembly* a) {
             new QStandardItem(toHex(values[addr], w)),
         });
     }
+
 
     refreshTable();
 }
@@ -124,6 +130,7 @@ void MemoryBrowserWidget::editData(QModelIndex index) {
 
 void MemoryBrowserWidget::removeData(QModelIndex index) {
     persistentData.remove(index.siblingAtColumn(0).data().toULongLong());
+    setup(curAssembly);
 }
 
 void MemoryBrowserWidget::push() {

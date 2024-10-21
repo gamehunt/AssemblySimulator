@@ -24,17 +24,17 @@ QPair<uint64_t, uint64_t> MemoryEditDialog::getValues() {
     QString sv = ui->valueLineEdit->text();
     bool ok;
     if(sa.startsWith("0x")) {
-        a = sa.toInt(&ok, 16);
+        a = sa.toULongLong(&ok, 16);
     } else {
-        a = sa.toInt(&ok, 10);
+        a = sa.toULongLong(&ok, 10);
     }
     if(!ok) {
         throw std::runtime_error("");
     }
     if(sv.startsWith("0x")) {
-        v = sv.toInt(&ok, 16);
+        v = sv.toULongLong(&ok, 16);
     } else {
-        v = sv.toInt(&ok, 10);
+        v = sv.toULongLong(&ok, 10);
     }
     if(!ok) {
         throw std::runtime_error("");
