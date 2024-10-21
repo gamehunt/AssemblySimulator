@@ -19,6 +19,8 @@ public:
     void    setFlag(uint16_t flag, uint8_t v);
     uint8_t getFlag(uint16_t flag);
 
+    QSyntaxHighlighter* getSyntaxHighlighter() override;
+
 private:
     uint64_t value(QString operand, int mode = MODE_ALL);
     int      jump(QString arg);

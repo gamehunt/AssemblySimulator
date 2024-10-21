@@ -7,6 +7,7 @@
 #include <QApplication>
 #include <QObject>
 #include <QStack>
+#include <QSyntaxHighlighter>
 
 class Assembly: public QObject
 {
@@ -21,6 +22,8 @@ public:
 
     bool isFinished() const;
     int  getCurrentLine();
+
+    virtual QSyntaxHighlighter* getSyntaxHighlighter() { return nullptr; };
 
 public slots:
     virtual void error(QString err);

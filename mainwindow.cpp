@@ -77,13 +77,22 @@ void MainWindow::updateStack(QStringList v) {
 void MainWindow::setAssembly(Assembly* a) {
     stackModel.clear();
     if(curAssembly) {
+        QSyntaxHighlighter* highlight = curAssembly->getSyntaxHighlighter();
+        if(highlight) {
+            highlight->setDocument(nullptr);
+        }
         QObject::disconnect(curAssembly->getMemory(), &Memory::memoryChanged, &memory, &MemoryBrowserWidget::refresh);
+        QObject::disconnect(curAssembly, &Assembly::lineExecuted, ui->textEdit, &CodeEdit::setExecutedLine);
         ui->stateFrame->layout()->removeWidget(curAssembly->getState()->getReprentationWidget());
     }
     QWidget* repr = a->getState()->getReprentationWidget();
     ui->stateFrame->layout()->addWidget(repr);
     ui->splitter->setSizes({ui->textEdit->maximumWidth(), repr->minimumWidth()});
     curAssembly = a;
+    QSyntaxHighlighter* highlight = curAssembly->getSyntaxHighlighter();
+    if(highlight) {
+        highlight->setDocument(ui->textEdit->document());
+    }
     QObject::connect(curAssembly->getMemory(), &Memory::memoryChanged, &memory, &MemoryBrowserWidget::refresh);
     QObject::connect(curAssembly, &Assembly::lineExecuted, ui->textEdit, &CodeEdit::setExecutedLine);
 }

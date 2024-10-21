@@ -39,6 +39,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         codeedit.h codeedit.cpp
         codeeditlinenumberarea.h codeeditlinenumberarea.cpp
         memoryeditdialog.h memoryeditdialog.cpp memoryeditdialog.ui
+        assemblies/amd64/amd64syntaxhighlighter.h assemblies/amd64/amd64syntaxhighlighter.cpp
 )
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET AssemblySimulator APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR

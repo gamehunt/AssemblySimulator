@@ -1,5 +1,6 @@
 #include "amd64assembly.h"
 #include "amd64states.h"
+#include "amd64syntaxhighlighter.h"
 
 #include <QTimer>
 
@@ -262,4 +263,9 @@ void AMD64Assembly::executeLine(QString line) {
     }
 
     nextLine = currentLine + 1;
+}
+
+QSyntaxHighlighter* AMD64Assembly::getSyntaxHighlighter() {
+    static AMD64SyntaxHighlighter highlighter;
+    return &highlighter;
 }
