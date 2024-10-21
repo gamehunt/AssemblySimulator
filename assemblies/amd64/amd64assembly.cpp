@@ -179,7 +179,7 @@ void AMD64Assembly::executeLine(QString line) {
             break;
         case MOV:
             parse_args(args, 2);
-            state.set(args[0], value(args[1]));
+            set(args[0], value(args[1]));
             if(args[0] == "rsp") {
                 memory.setStackPointer(state.get("rsp"));
             }
@@ -268,4 +268,12 @@ void AMD64Assembly::executeLine(QString line) {
 QSyntaxHighlighter* AMD64Assembly::getSyntaxHighlighter() {
     static AMD64SyntaxHighlighter highlighter;
     return &highlighter;
+}
+
+void AMD64Assembly::set(QString operand, uint64_t val) {
+    if(operand.startsWith("[") && operand.endsWith("]")) {
+        memory.set(value(operand), val);
+    } else {
+        state.set(operand, val);
+    }
 }

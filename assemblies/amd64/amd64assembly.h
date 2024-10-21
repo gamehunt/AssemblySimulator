@@ -22,6 +22,7 @@ public:
     QSyntaxHighlighter* getSyntaxHighlighter() override;
 
 private:
+    void     set(QString operand, uint64_t value);
     uint64_t value(QString operand, int mode = MODE_ALL);
     int      jump(QString arg);
 };
