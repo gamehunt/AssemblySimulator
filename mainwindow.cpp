@@ -31,12 +31,12 @@ MainWindow::MainWindow(QWidget *parent)
             pause();
         } else {
             paused = false;
-            run();
+            run(running);
         }
     });
     QObject::connect(ui->runPausedButton,  &QPushButton::clicked, this, [this](){
         paused = true;
-        run();
+        run(false);
     });
     QObject::connect(ui->stepForwardPushButton, &QPushButton::clicked, this, [this]() {step(false);});
     QObject::connect(ui->stepBackwardPushButton, &QPushButton::clicked, this, [this]() {step(true);});
@@ -79,7 +79,9 @@ void MainWindow::setAssembly(Assembly* a) {
     if(curAssembly) {
         ui->stateFrame->layout()->removeWidget(curAssembly->getState()->getReprentationWidget());
     }
-    ui->stateFrame->layout()->addWidget(a->getState()->getReprentationWidget());
+    QWidget* repr = a->getState()->getReprentationWidget();
+    ui->stateFrame->layout()->addWidget(repr);
+    ui->splitter->setSizes({ui->textEdit->maximumWidth(), repr->minimumWidth()});
     curAssembly = a;
 }
 
@@ -97,9 +99,14 @@ void MainWindow::updateButtonStates() {
     ui->stopPushButton->setEnabled(running);
 }
 
-void MainWindow::run() {
+void MainWindow::run(bool up) {
     running = true;
     updateButtonStates();
+    if(!up) {
+        qDebug() << "Inj!";
+        memory.setup(curAssembly);
+        memory.injectMemory();
+    }
     if(!paused) {
         curAssembly->execute();
         if(curAssembly->isFinished()) {

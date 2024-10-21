@@ -20,6 +20,18 @@ public:
     ~MemoryBrowserWidget();
 
     void setup(Assembly* a);
+    void injectMemory();
+
+public slots:
+    void addData();
+    void removeData(QModelIndex index);
+    void editData(QModelIndex index);
+    void push();
+    void pop();
+
+protected slots:
+    void updateButtonStates();
+    void refreshTable();
 
 protected:
     void reset();
@@ -30,7 +42,7 @@ private:
     QStandardItemModel    model;
     QSortFilterProxyModel proxy;
 
-    QMap<uint64_t, uint8_t> persistentOverrides;
+    QMap<uint64_t, uint64_t> persistentData;
 
     Assembly* curAssembly;
 };

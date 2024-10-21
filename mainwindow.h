@@ -29,7 +29,7 @@ public slots:
     void setAssembly(Assembly* a);
     void showDisasm();
     void showMemoryBrowser();
-    void run();
+    void run(bool unpaused = false);
     void step(bool b);
     void stop();
     void pause();
