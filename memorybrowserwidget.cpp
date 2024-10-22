@@ -10,6 +10,8 @@ MemoryBrowserWidget::MemoryBrowserWidget(QWidget *parent)
 {
     ui->setupUi(this);
 
+    setAttribute(Qt::WA_X11NetWmWindowTypeDialog);
+
     curAssembly = nullptr;
 
     QObject::connect(ui->addButton, &QPushButton::clicked, this, &MemoryBrowserWidget::addData);

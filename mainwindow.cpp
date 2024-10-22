@@ -5,7 +5,9 @@
 
 #include <QMessageBox>
 #include <QStandardItemModel>
+#include <QTableWidget>
 #include <QTimer>
+#include <disassemblerdialog.h>
 #include <keystone/keystone.h>
 
 MainWindow::MainWindow(QWidget *parent)
@@ -17,6 +19,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->stackView->resizeColumnsToContents();
 
     ui->resetPushButton->setVisible(false);
+    ui->stepBackwardPushButton->setVisible(false);
 
     running = paused = false;
     curAssembly = nullptr;
@@ -163,7 +166,30 @@ void MainWindow::reset() {
 }
 
 void MainWindow::showDisasm() {
+    ks_engine* ks;
+    ks_err     err;
 
+    err = ks_open(KS_ARCH_X86, KS_MODE_64, &ks);
+
+    if (err != KS_ERR_OK) {
+        QMessageBox::critical(this, "Error", "Failed on ks_open()");
+        return;
+    }
+
+    size_t count;
+    unsigned char *encode;
+    size_t size;
+
+    if (ks_asm(ks, ui->textEdit->toPlainText().toStdString().c_str(), 0, &encode, &size, &count) != KS_ERR_OK) {
+        QMessageBox::critical(this, "Error", QString("ks_asm() failed & count = {0}, error = {1}\n").arg(count).arg(ks_errno(ks)));
+    } else {
+        DisassemblerDialog disasm;
+        disasm.setCode(encode, size);
+        disasm.exec();
+    }
+
+    ks_free(encode);
+    ks_close(ks);
 }
 
 void MainWindow::showMemoryBrowser() {
