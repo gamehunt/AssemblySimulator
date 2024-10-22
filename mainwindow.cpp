@@ -5,6 +5,7 @@
 
 #include <QMessageBox>
 #include <QStandardItemModel>
+#include <QTimer>
 #include <keystone/keystone.h>
 
 MainWindow::MainWindow(QWidget *parent)
@@ -155,8 +156,10 @@ void MainWindow::reset() {
     running = false;
     paused  = false;
     updateButtonStates();
-    curAssembly->reset();
-    curAssembly->setCode(ui->textEdit->toPlainText().split("\n"));
+    QTimer::singleShot(1, [this]() {
+        curAssembly->reset();
+        curAssembly->setCode(ui->textEdit->toPlainText().split("\n"));
+    });
 }
 
 void MainWindow::showDisasm() {
