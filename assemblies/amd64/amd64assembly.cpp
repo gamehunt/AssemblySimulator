@@ -34,7 +34,8 @@ enum OP_TYPE {
     JC,
     CALL,
     RET,
-    XCHG
+    XCHG,
+    INT
 };
 
 static const QMap<QString, OP_TYPE> __ops = {
@@ -61,7 +62,8 @@ static const QMap<QString, OP_TYPE> __ops = {
     {"jc"  , JC   },
     {"call", CALL },
     {"ret" , RET  },
-    {"xchg", XCHG }
+    {"xchg", XCHG },
+    {"int" , INT  },
 };
 
 #define parse_args(args, n) args = _args.split(","); if (args.size() < n) { throw std::runtime_error("more args required"); }
@@ -94,7 +96,6 @@ void AMD64Assembly::reset() {
     state.set("rbp", Memory::getStackAddress());
     state.set("rsp", Memory::getStackAddress());
 }
-
 
 uint64_t AMD64Assembly::value(QString s, int mode) {
     bool v = false;
@@ -153,6 +154,10 @@ int AMD64Assembly::jump(QString arg) {
         }
     }
     return value(arg) / 8;
+}
+
+void AMD64Assembly::interrupt(int i) {
+    throw std::runtime_error("Unknown interrupt");
 }
 
 void AMD64Assembly::executeLine(QString line) {
@@ -312,8 +317,12 @@ void AMD64Assembly::executeLine(QString line) {
             set(args[0], value(args[1]));
             set(args[1], v);
             break;
+        case INT:
+            parse_args(args, 1);
+            interrupt(value(args[0], MODE_IMM));
+            break;
         default:
-            throw std::runtime_error("unimplemented opcode");
+            throw std::runtime_error("unimplemented/unknown opcode");
         }
 
     }

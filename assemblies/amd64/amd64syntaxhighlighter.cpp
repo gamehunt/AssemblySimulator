@@ -33,6 +33,7 @@ AMD64SyntaxHighlighter::AMD64SyntaxHighlighter(QTextDocument* parent)
         QStringLiteral("\\bcall\\b"),
         QStringLiteral("\\bret\\b" ),
         QStringLiteral("\\bxchg\\b" ),
+        QStringLiteral("\\bint\\b" ),
     };
 
     for (const QString &pattern : opPatterns) {

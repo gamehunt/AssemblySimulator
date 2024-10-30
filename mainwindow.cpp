@@ -159,7 +159,7 @@ void MainWindow::reset() {
     running = false;
     paused  = false;
     updateButtonStates();
-    QTimer::singleShot(1, [this]() {
+    QTimer::singleShot(1, this, [this]() {
         curAssembly->reset();
         curAssembly->setCode(ui->textEdit->toPlainText().split("\n"));
     });
@@ -181,7 +181,7 @@ void MainWindow::showDisasm() {
     size_t size;
 
     if (ks_asm(ks, ui->textEdit->toPlainText().toStdString().c_str(), 0, &encode, &size, &count) != KS_ERR_OK) {
-        QMessageBox::critical(this, "Error", QString("ks_asm() failed & count = {0}, error = {1}\n").arg(count).arg(ks_errno(ks)));
+        QMessageBox::critical(this, "Error", QString("ks_asm() failed & count = %0, error = %1\n").arg(count).arg(ks_strerror(ks_errno(ks))));
     } else {
         DisassemblerDialog disasm;
         disasm.setCode(encode, size);
