@@ -33,7 +33,8 @@ enum OP_TYPE {
     JGE,
     JC,
     CALL,
-    RET
+    RET,
+    XCHG
 };
 
 static const QMap<QString, OP_TYPE> __ops = {
@@ -59,7 +60,8 @@ static const QMap<QString, OP_TYPE> __ops = {
     {"jle" , JLE  },
     {"jc"  , JC   },
     {"call", CALL },
-    {"ret" , RET  }
+    {"ret" , RET  },
+    {"xchg", XCHG }
 };
 
 #define parse_args(args, n) args = _args.split(","); if (args.size() < n) { throw std::runtime_error("more args required"); }
@@ -162,6 +164,8 @@ void AMD64Assembly::executeLine(QString line) {
     QStringList args;
 
     int64_t v = 0;
+    int64_t v1, v2;
+    v1 = v2 = 0;
 
     op = splitted[0];
     for(int i = 1; i < splitted.size(); i++) {
@@ -208,24 +212,42 @@ void AMD64Assembly::executeLine(QString line) {
             break;
         case SUB:
             parse_args(args, 2);
-            state.set(args[0], value(args[0]) - value(args[1]));
+            v1 = value(args[0]);
+            v2 = value(args[1]);
+            state.set(args[0], v1 - v2);
             break;
         case MUL:
             parse_args(args, 2);
             state.set(args[0], value(args[0]) * value(args[1]));
             break;
         case DIV:
-            parse_args(args, 2);
-            if(value(args[1]) == 0) {
+            parse_args(args, 1);
+            v1 = value(args[1]);
+            v2 = value("rax");
+            if(v1 == 0) {
                 throw std::runtime_error("zero division");
             }
-            state.set(args[0], value(args[0]) / value(args[1]));
+            state.set("rax", v2 / v1);
+            state.set("rdx", v2 % v1);
             break;
         case CMP:
             parse_args(args, 2);
-            v = value(args[0]) - value(args[1]);
+
+            v1 = value(args[0]);
+            v2 = value(args[1]);
+            v = v1 - v2;
+
             setFlag(FL_ZF, v == 0);
-            // TODO others
+
+            // TODO proper logic
+            if(v1 < v2) {
+                setFlag(FL_SF, 1);
+                setFlag(FL_OF, 0);
+            } else {
+                setFlag(FL_SF, 0);
+                setFlag(FL_OF, 0);
+            }
+
             break;
         case JE:
             parse_args(args, 1);
@@ -237,6 +259,34 @@ void AMD64Assembly::executeLine(QString line) {
         case JNE:
             parse_args(args, 1);
             if(!getFlag(FL_ZF)) {
+                nextLine = jump(args[0]);
+                return;
+            }
+            break;
+        case JL:
+            parse_args(args, 1);
+            if(getFlag(FL_SF) != getFlag(FL_OF)) {
+                nextLine = jump(args[0]);
+                return;
+            }
+            break;
+        case JLE:
+            parse_args(args, 1);
+            if(getFlag(FL_ZF) || (getFlag(FL_SF) != getFlag(FL_OF))) {
+                nextLine = jump(args[0]);
+                return;
+            }
+            break;
+        case JG:
+            parse_args(args, 1);
+            if(!getFlag(FL_ZF) && (getFlag(FL_SF) == getFlag(FL_OF))) {
+                nextLine = jump(args[0]);
+                return;
+            }
+            break;
+        case JGE:
+            parse_args(args, 1);
+            if(getFlag(FL_SF) == getFlag(FL_OF)) {
                 nextLine = jump(args[0]);
                 return;
             }
@@ -256,6 +306,12 @@ void AMD64Assembly::executeLine(QString line) {
             state.set("rsp", memory.getStackPointer());
             nextLine = v / 8;
             return;
+        case XCHG:
+            parse_args(args, 2);
+            v = value(args[0]);
+            set(args[0], value(args[1]));
+            set(args[1], v);
+            break;
         default:
             throw std::runtime_error("unimplemented opcode");
         }
