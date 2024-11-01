@@ -1,8 +1,8 @@
 #ifndef STATEMANAGER_H
 #define STATEMANAGER_H
 
-#include "utils.h"
-#include <QLabel>
+#include "../../utils.h"
+
 #include <QWidget>
 
 struct Register {

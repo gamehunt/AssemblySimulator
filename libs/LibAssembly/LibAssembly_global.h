@@ -1,0 +1,12 @@
+#ifndef LIBASSEMBLY_GLOBAL_H
+#define LIBASSEMBLY_GLOBAL_H
+
+#include <QtCore/qglobal.h>
+
+#if defined(LIBASSEMBLY_LIBRARY)
+#define LIBASSEMBLY_EXPORT Q_DECL_EXPORT
+#else
+#define LIBASSEMBLY_EXPORT Q_DECL_IMPORT
+#endif
+
+#endif // LIBASSEMBLY_GLOBAL_H

@@ -1,7 +1,7 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include "assembly.h"
+#include "libs/LibAssembly/assembly.h"
 #include "memorybrowserwidget.h"
 
 #include <QComboBox>

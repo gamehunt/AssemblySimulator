@@ -1,9 +1,10 @@
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
-#include "assemblies/amd64/amd64assembly.h"
 #include "utils.h"
 
+#include <QDir>
 #include <QMessageBox>
+#include <QPluginLoader>
 #include <QStandardItemModel>
 #include <QTableWidget>
 #include <QTimer>
@@ -26,7 +27,24 @@ MainWindow::MainWindow(QWidget *parent)
 
     QObject::connect(ui->assembliesComboBox, &QComboBox::currentTextChanged, this, [this](QString v) {setAssembly(assemblies[v]);});
 
-    registerAssembly("x86-64", new AMD64Assembly);
+    QDir directory("assemblies");
+    foreach(const QFileInfo &file, directory.entryInfoList()) {
+        if(!file.isFile()) {
+            continue;
+        }
+        QPluginLoader loader(file.absoluteFilePath());
+        if(loader.load()) {
+            AssemblyInterface* as = qobject_cast<AssemblyInterface*>(loader.instance());
+            if(as) {
+                registerAssembly(as->getName(), as->getAssembly());
+            } else {
+                qDebug() << "Invalid plugin: " << file.fileName();
+            }
+        } else {
+            qDebug() << "Failed to load assembly: " << file.fileName() << loader.errorString();
+        }
+    }
+
 
     QObject::connect(ui->textEdit, &QPlainTextEdit::textChanged, this, [this](){ curAssembly->setCode(ui->textEdit->toPlainText().split("\n")); });
 

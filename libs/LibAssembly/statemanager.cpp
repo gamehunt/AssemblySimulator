@@ -1,5 +1,7 @@
 #include "statemanager.h"
 
+#include <QLabel>
+
 void StateManager::set(QString r, uint64_t v, bool a) {
     if(_state.contains(r)) {
         if(!a && !_state[r].direct) {

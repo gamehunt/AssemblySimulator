@@ -384,7 +384,7 @@ void AMD64Assembly::executeLine(QString line) {
             // TODO PF
             break;
         default:
-            throw std::runtime_error("unimplemented/unknown opcode");
+            throw std::runtime_error("unimplemented/invalid opcode");
         }
 
     }

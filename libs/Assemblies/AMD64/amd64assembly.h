@@ -2,7 +2,7 @@
 #define AMD64ASSEMBLY_H
 
 #include <QStringList>
-#include "../../assembly.h"
+#include "libs/LibAssembly/assembly.h"
 
 #define MODE_IMM (1 << 0)
 #define MODE_REG (1 << 1)

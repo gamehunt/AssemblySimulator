@@ -9,6 +9,8 @@
 #include <QStack>
 #include <QSyntaxHighlighter>
 
+
+
 class Assembly: public QObject
 {
     Q_OBJECT
@@ -48,5 +50,14 @@ protected:
     int              currentLine, nextLine;
     bool             stopped;
 };
+
+class AssemblyInterface: public QObject {
+public:
+    virtual ~AssemblyInterface() = default;
+    virtual QString   getName() = 0;
+    virtual Assembly* getAssembly() = 0;
+};
+
+Q_DECLARE_INTERFACE(AssemblyInterface, "ru.l1zz.asmsim.AssemblyInterface")
 
 #endif // ASSEMBLY_H

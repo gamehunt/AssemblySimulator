@@ -1,7 +1,7 @@
 #ifndef MEMORYBROWSERWIDGET_H
 #define MEMORYBROWSERWIDGET_H
 
-#include "assembly.h"
+#include "libs/LibAssembly/assembly.h"
 
 #include <QSortFilterProxyModel>
 #include <QStandardItemModel>

@@ -14,6 +14,9 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
+add_subdirectory(libs/LibAssembly)
+add_subdirectory(libs/Assemblies/AMD64)
+
 set(PROJECT_SOURCES
         main.cpp
         mainwindow.cpp
@@ -26,20 +29,11 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
         icons.qrc
-        assembly.h
-        statemanager.h
-        assemblies/amd64/amd64states.h assemblies/amd64/amd64states.cpp assemblies/amd64/amd64states.ui
-        assemblies/amd64/amd64assembly.h assemblies/amd64/amd64assembly.cpp
-
         utils.h
-        assembly.cpp
-        statemanager.cpp
         memorybrowserwidget.h memorybrowserwidget.cpp memorybrowserwidget.ui
-        memory.h memory.cpp
         codeedit.h codeedit.cpp
         codeeditlinenumberarea.h codeeditlinenumberarea.cpp
         memoryeditdialog.h memoryeditdialog.cpp memoryeditdialog.ui
-        assemblies/amd64/amd64syntaxhighlighter.h assemblies/amd64/amd64syntaxhighlighter.cpp
         disassemblerdialog.h disassemblerdialog.cpp disassemblerdialog.ui
 )
 # Define target properties for Android with Qt 6 as:
@@ -60,7 +54,7 @@ else()
     endif()
 endif()
 
-target_link_libraries(AssemblySimulator PRIVATE Qt${QT_VERSION_MAJOR}::Widgets keystone)
+target_link_libraries(AssemblySimulator PRIVATE Qt${QT_VERSION_MAJOR}::Widgets keystone Assembly)
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
 # If you are developing for iOS or macOS you should consider setting an
