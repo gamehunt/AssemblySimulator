@@ -1,7 +1,17 @@
 #include "statemanager.h"
 
 void StateManager::set(QString r, uint64_t v, bool a) {
-    if(!hasRegister(r) || (!a && !_state[r].direct)) {
+    if(_state.contains(r)) {
+        if(!a && !_state[r].direct) {
+            qDebug() << r;
+            throw std::invalid_argument("invalid register");
+        }
+        _state[r].value = v;
+    } else if(_aliases.contains(r)) {
+        uint64_t orig = get(_aliases[r].src, a);
+        set(_aliases[r].src, (orig & ~_aliases[r].mask) | (v << _aliases[r].shift), a);
+    } else {
+        qDebug() << r;
         throw std::invalid_argument("invalid register");
     }
     if(_representation) {
@@ -10,22 +20,33 @@ void StateManager::set(QString r, uint64_t v, bool a) {
             label->setText(toHex(v, w));
         }
     }
-    _state[r].value = v;
 }
 
 void StateManager::addRegister(QString r, bool d) {
     _state[r] = {.value = 0, .direct = d};
 }
 
+void StateManager::addAlias(QString r, QString src, uint64_t mask, int shift) {
+    _aliases[r] = {.src = src, .mask = mask, .shift = shift};
+}
+
 bool StateManager::hasRegister(QString r) const {
-    return _state.contains(r);
+    return _state.contains(r) || _aliases.contains(r);
 }
 
 uint64_t StateManager::get(QString v, bool a) const {
-    if(!hasRegister(v) || (!a && !_state[v].direct)) {
+    if(_state.contains(v)) {
+        if(!a && !_state[v].direct) {
+            qDebug() << v;
+            throw std::invalid_argument("invalid register");
+        }
+        return _state[v].value;
+    } else if(_aliases.contains(v)) {
+        return (get(_aliases[v].src) & _aliases[v].mask) >> _aliases[v].shift;
+    } else {
+        qDebug() << v;
         throw std::invalid_argument("invalid register");
     }
-    return _state[v].value;
 }
 
 void StateManager::setRepresentationWidget(QWidget* w) {

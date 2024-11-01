@@ -7,7 +7,13 @@
 
 struct Register {
     uint64_t value;
-    bool direct;
+    bool     direct;
+};
+
+struct Alias {
+    QString  src;
+    uint64_t mask;
+    int      shift;
 };
 
 class StateManager
@@ -19,6 +25,8 @@ public:
     uint64_t get(QString v, bool allowIndirect = false) const;
 
     void addRegister(QString r, bool direct = true);
+    void addAlias(QString r, QString src, uint64_t mask, int shift);
+
     bool hasRegister(QString r) const;
 
     void setRepresentationWidget(QWidget* w);
@@ -32,6 +40,7 @@ public:
 
 private:
     QMap<QString, Register> _state;
+    QMap<QString, Alias>    _aliases;
     QWidget*                _representation;
 
     int w;

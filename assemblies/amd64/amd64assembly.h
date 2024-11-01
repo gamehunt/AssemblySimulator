@@ -6,7 +6,8 @@
 
 #define MODE_IMM (1 << 0)
 #define MODE_REG (1 << 1)
-#define MODE_ALL (MODE_IMM | MODE_REG)
+#define MODE_MEM (1 << 2)
+#define MODE_ALL 0xFF
 
 class AMD64Assembly : public Assembly
 {

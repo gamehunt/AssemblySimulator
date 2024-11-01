@@ -23,6 +23,11 @@ enum OP_TYPE {
     SUB,
     DIV,
     MUL,
+    AND,
+    OR,
+    XOR,
+    SHL,
+    SHR,
     CMP,
     JMP,
     JE,
@@ -35,7 +40,8 @@ enum OP_TYPE {
     CALL,
     RET,
     XCHG,
-    INT
+    INT,
+    TEST
 };
 
 static const QMap<QString, OP_TYPE> __ops = {
@@ -49,6 +55,11 @@ static const QMap<QString, OP_TYPE> __ops = {
     {"sub" , SUB  },
     {"div" , DIV  },
     {"mul" , MUL  },
+    {"and" , AND  },
+    {"or"  , OR   },
+    {"xor" , XOR  },
+    {"shl" , SHL  },
+    {"shr" , SHR  },
     {"cmp" , CMP  },
     {"jmp" , JMP  },
     {"je"  , JE   },
@@ -64,18 +75,29 @@ static const QMap<QString, OP_TYPE> __ops = {
     {"ret" , RET  },
     {"xchg", XCHG },
     {"int" , INT  },
+    {"test", TEST }
 };
 
 #define parse_args(args, n) args = _args.split(","); if (args.size() < n) { throw std::runtime_error("more args required"); }
 
 AMD64Assembly::AMD64Assembly() {
     state.setRepresentationWidget(new AMD64States());
-    state.addRegister("rax");
-    state.addRegister("rbx");
-    state.addRegister("rcx");
-    state.addRegister("rdx");
+    char dst = 'a';
+    while(dst <= 'd') {
+        QString src = QString("r%0x").arg(dst);
+        state.addRegister(src);
+        state.addAlias(QString("e%0x").arg(dst), src, 0xFFFFFFFF, 0);
+        state.addAlias(QString("%0x").arg(dst), src, 0xFFFF, 0);
+        state.addAlias(QString("%0l").arg(dst), src, 0xFF, 0);
+        state.addAlias(QString("%0h").arg(dst), src, 0xFF00, 8);
+        dst++;
+    }
     state.addRegister("rdi");
+    state.addAlias("edi", "rdi", 0xFFFFFFFF, 0);
+    state.addAlias("di", "rdi", 0xFFFF, 0);
     state.addRegister("rsi");
+    state.addAlias("esi", "rsi", 0xFFFFFFFF, 0);
+    state.addAlias("si", "rsi", 0xFFFF, 0);
     state.addRegister("rbp");
     state.addRegister("rsp");
     state.addRegister("r8");
@@ -102,27 +124,26 @@ uint64_t AMD64Assembly::value(QString s, int mode) {
     int base = 10;
     uint64_t tmp = 0;
 
-    if((mode & MODE_REG) && !(mode & MODE_IMM)) {
-        goto reg;
-    }
-
     if(s.startsWith("[") && s.endsWith("]")) {
+        if(!(mode & MODE_MEM)) {
+            throw std::runtime_error("non-memory value required");
+        }
         return memory.get<uint64_t>(value(s.mid(1, s.length() - 2)));
     }
 
-    if(s.startsWith("0") && s.size() > 3) {
-        if(s[1] == 'x') {
-            base = 16;
-            s = s.last(s.size() - 2);
-        } if(s[1] == 'b') {
-            base = 2;
-            s = s.last(s.size() - 2);
+    if(mode & MODE_IMM) {
+        if(s.startsWith("0") && s.size() >= 3) {
+            if(s[1] == 'x') {
+                base = 16;
+                s = s.last(s.size() - 2);
+            } else if(s[1] == 'b') {
+                base = 2;
+                s = s.last(s.size() - 2);
+            }
         }
+        tmp = s.toULongLong(&v, base);
     }
 
-    tmp = s.toULongLong(&v, base);
-
-reg:
     if(v) {
         return tmp;
     } else {
@@ -235,6 +256,36 @@ void AMD64Assembly::executeLine(QString line) {
             state.set("rax", v2 / v1);
             state.set("rdx", v2 % v1);
             break;
+        case AND:
+            parse_args(args, 2);
+            v1 = value(args[0], MODE_REG | MODE_MEM);
+            v2 = value(args[1]);
+            state.set(args[0], v1 & v2);
+            break;
+        case OR:
+            parse_args(args, 2);
+            v1 = value(args[0], MODE_REG | MODE_MEM);
+            v2 = value(args[1]);
+            state.set(args[0], v1 | v2);
+            break;
+        case XOR:
+            parse_args(args, 2);
+            v1 = value(args[0], MODE_REG | MODE_MEM);
+            v2 = value(args[1]);
+            state.set(args[0], v1 ^ v2);
+            break;
+        case SHL:
+            parse_args(args, 2);
+            v1 = value(args[0], MODE_REG | MODE_MEM);
+            v2 = value(args[1], MODE_IMM);
+            state.set(args[0], v1 << v2);
+            break;
+        case SHR:
+            parse_args(args, 2);
+            v1 = value(args[0], MODE_REG | MODE_MEM);
+            v2 = value(args[1], MODE_IMM);
+            state.set(args[0], v1 >> v2);
+            break;
         case CMP:
             parse_args(args, 2);
 
@@ -320,6 +371,17 @@ void AMD64Assembly::executeLine(QString line) {
         case INT:
             parse_args(args, 1);
             interrupt(value(args[0], MODE_IMM));
+            break;
+        case TEST:
+            parse_args(args, 2);
+            v1 = value(args[0], MODE_REG | MODE_MEM);
+            v2 = value(args[1]);
+            v  = v1 & v2;
+            setFlag(FL_ZF, v == 0);
+            setFlag(FL_OF, 0);
+            setFlag(FL_CF, 0);
+            setFlag(FL_SF, v < 0);
+            // TODO PF
             break;
         default:
             throw std::runtime_error("unimplemented/unknown opcode");
