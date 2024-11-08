@@ -35,10 +35,15 @@ public slots:
     void pause();
     void reset();
 
+    void about();
+    void help();
+
 private slots:
     void updateButtonStates();
 
 private:
+    void createHelpWindow();
+
     Ui::MainWindow *ui;
 
     MemoryBrowserWidget memory;
@@ -46,6 +51,8 @@ private:
     QStandardItemModel stackModel;
     QMap<QString, Assembly*> assemblies;
     Assembly* curAssembly;
+
+    QWidget* helpWindow;
 
     bool running, paused;
 };

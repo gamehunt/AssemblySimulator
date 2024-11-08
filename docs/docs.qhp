@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<QtHelpProject version="1.0">
+    <namespace>ru.l1zz.asmsim.1.0</namespace>
+    <virtualFolder>doc</virtualFolder>
+    <customFilter name="Assembly Simulator">
+        <filterAttribute>asmsim</filterAttribute>
+        <filterAttribute>1.0</filterAttribute>
+    </customFilter>
+    <filterSection>
+        <filterAttribute>asmsim</filterAttribute>
+        <filterAttribute>1.0</filterAttribute>
+        <toc>
+            <section title="User Manual" ref="index.html">
+            </section>
+        </toc>
+        <keywords>
+        </keywords>
+        <files>
+            <file>style.css</file>
+            <file>*.html</file>
+        </files>
+    </filterSection>
+</QtHelpProject>

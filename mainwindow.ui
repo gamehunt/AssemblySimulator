@@ -385,15 +385,21 @@
     <property name="title">
      <string>Помощь</string>
     </property>
-    <addaction name="action"/>
+    <addaction name="helpAction"/>
+    <addaction name="aboutAction"/>
    </widget>
    <addaction name="menu"/>
    <addaction name="menu_2"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
-  <action name="action">
+  <action name="aboutAction">
    <property name="text">
     <string>О Программе</string>
+   </property>
+  </action>
+  <action name="helpAction">
+   <property name="text">
+    <string>Справка</string>
    </property>
   </action>
  </widget>

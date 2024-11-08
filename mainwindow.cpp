@@ -3,12 +3,17 @@
 #include "utils.h"
 
 #include <QDir>
+#include <QHelpEngine>
+#include <QHelpIndexWidget>
+#include <QHelpContentWidget>
 #include <QMessageBox>
 #include <QPluginLoader>
 #include <QStandardItemModel>
 #include <QTableWidget>
 #include <QTimer>
 #include <disassemblerdialog.h>
+#include <helpbrowser.h>
+#include <QHelpLink>
 #include <keystone/keystone.h>
 
 MainWindow::MainWindow(QWidget *parent)
@@ -45,6 +50,7 @@ MainWindow::MainWindow(QWidget *parent)
         }
     }
 
+    createHelpWindow();
 
     QObject::connect(ui->textEdit, &QPlainTextEdit::textChanged, this, [this](){ curAssembly->setCode(ui->textEdit->toPlainText().split("\n")); });
 
@@ -66,6 +72,8 @@ MainWindow::MainWindow(QWidget *parent)
     QObject::connect(ui->resetPushButton, &QPushButton::clicked, this, &MainWindow::reset);
     QObject::connect(ui->disasmPushButton, &QPushButton::clicked, this, &MainWindow::showDisasm);
     QObject::connect(ui->memPushButton, &QPushButton::clicked, this, &MainWindow::showMemoryBrowser);
+    QObject::connect(ui->aboutAction, &QAction::triggered, this, &MainWindow::about);
+    QObject::connect(ui->helpAction, &QAction::triggered, this, &MainWindow::help);
 }
 
 MainWindow::~MainWindow()
@@ -213,4 +221,45 @@ void MainWindow::showDisasm() {
 void MainWindow::showMemoryBrowser() {
     memory.setup(curAssembly);
     memory.show();
+}
+
+void MainWindow::about() {
+    QMessageBox::about(this, tr("Assembly Simulator"),
+                       tr("Демаков М.А. 21-ПМ\n"
+                          "НГТУ им. Р.Е. Алексеева"));
+}
+
+void MainWindow::createHelpWindow() {
+    QHelpEngine* helpEngine = new QHelpEngine("docs/docs.qhc");
+    helpEngine->setupData();
+
+    QTabWidget* tWidget = new QTabWidget;
+    tWidget->setMaximumWidth(200);
+    tWidget->addTab(helpEngine->contentWidget(), "Contents");
+    tWidget->addTab(helpEngine->indexWidget(), "Index");
+
+    HelpBrowser *textViewer = new HelpBrowser(helpEngine);
+    textViewer->setSource(QUrl("qthelp://ru.l1zz.asmsim.1.0/doc/index.html"));
+    connect(helpEngine->contentWidget(),
+            SIGNAL(linkActivated(QUrl)),
+            textViewer, SLOT(setSource(QUrl)));
+
+    connect(helpEngine->indexWidget(),
+            SIGNAL(linkActivated(QUrl,QString)),
+            textViewer, SLOT(setSource(QUrl)));
+
+    QSplitter *horizSplitter = new QSplitter(Qt::Horizontal);
+    horizSplitter->insertWidget(0, tWidget);
+    horizSplitter->insertWidget(1, textViewer);
+    horizSplitter->hide();
+
+    helpWindow = horizSplitter;
+    helpWindow->hide();
+}
+
+void MainWindow::help() {
+    if(helpWindow == nullptr) {
+        return;
+    }
+    helpWindow->show();
 }
