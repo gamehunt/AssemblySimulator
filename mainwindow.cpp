@@ -225,7 +225,8 @@ void MainWindow::showMemoryBrowser() {
 
 void MainWindow::about() {
     QMessageBox::about(this, tr("Assembly Simulator"),
-                       tr("Демаков М.А. 21-ПМ\n"
+                       tr("Среда для исполнения ассемблерного кода\n"
+                          "Демаков М.А. 21-ПМ\n"
                           "НГТУ им. Р.Е. Алексеева"));
 }
 
