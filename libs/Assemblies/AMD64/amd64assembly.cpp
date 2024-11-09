@@ -41,7 +41,10 @@ enum OP_TYPE {
     RET,
     XCHG,
     INT,
-    TEST
+    TEST,
+    LEA,
+    NOT,
+    NEG
 };
 
 static const QMap<QString, OP_TYPE> __ops = {
@@ -75,7 +78,10 @@ static const QMap<QString, OP_TYPE> __ops = {
     {"ret" , RET  },
     {"xchg", XCHG },
     {"int" , INT  },
-    {"test", TEST }
+    {"test", TEST },
+    {"lea",  LEA },
+    {"not", NOT},
+    {"neg", NEG}
 };
 
 #define parse_args(args, n) args = _args.split(","); if (args.size() < n) { throw std::runtime_error("more args required"); }
@@ -243,8 +249,8 @@ void AMD64Assembly::executeLine(QString line) {
             state.set(args[0], v1 - v2);
             break;
         case MUL:
-            parse_args(args, 2);
-            state.set(args[0], value(args[0]) * value(args[1]));
+            parse_args(args, 1);
+            state.set("rax", value(args[0]));
             break;
         case DIV:
             parse_args(args, 1);
@@ -383,6 +389,20 @@ void AMD64Assembly::executeLine(QString line) {
             setFlag(FL_SF, v < 0);
             // TODO PF
             break;
+        case LEA:
+            parse_args(args, 2);
+            set(args[0], lea(args[1]));
+            break;
+        case NOT:
+            parse_args(args, 1);
+            v = value(args[0], MODE_REG | MODE_MEM);
+            set(args[0], ~v);
+            break;
+        case NEG:
+            parse_args(args, 1);
+            v = value(args[0], MODE_REG | MODE_MEM);
+            set(args[0], (~v) + 1);
+            break;
         default:
             throw std::runtime_error("unimplemented/invalid opcode");
         }
@@ -403,4 +423,11 @@ void AMD64Assembly::set(QString operand, uint64_t val) {
     } else {
         state.set(operand, val);
     }
+}
+
+uint64_t AMD64Assembly::lea(QString operand) {
+    if(!operand.startsWith("[") && !operand.endsWith("]")) {
+        throw std::runtime_error("memory operand required");
+    }
+    return value(operand.slice(1, operand.size() - 2), MODE_IMM | MODE_REG);
 }

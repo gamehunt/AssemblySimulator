@@ -39,7 +39,10 @@ AMD64SyntaxHighlighter::AMD64SyntaxHighlighter(QTextDocument* parent)
         QStringLiteral("\\bret\\b" ),
         QStringLiteral("\\bxchg\\b" ),
         QStringLiteral("\\bint\\b" ),
-        QStringLiteral("\\btest\\b")
+        QStringLiteral("\\btest\\b"),
+        QStringLiteral("\\blea\\b"),
+        QStringLiteral("\\bnot\\b"),
+        QStringLiteral("\\bneg\\b")
     };
 
     for (const QString &pattern : opPatterns) {
