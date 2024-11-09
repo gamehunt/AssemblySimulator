@@ -184,7 +184,7 @@ void AMD64Assembly::interrupt(int i) {
 void AMD64Assembly::executeLine(QString line) {
     state.set("rip", currentLine * 8, true);
 
-    QStringList splitted = line.split(" ");
+    QStringList splitted = line.simplified().split(" ");
     QString op;
     QString _args;
     QStringList args;
