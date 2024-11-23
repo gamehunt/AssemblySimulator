@@ -5,6 +5,7 @@
 #include "memorybrowserwidget.h"
 
 #include <QComboBox>
+#include <QFile>
 #include <QMainWindow>
 #include <QStandardItemModel>
 
@@ -38,8 +39,13 @@ public slots:
     void about();
     void help();
 
+    void newFile();
+    void saveFile(bool as);
+    void openFile();
+
 private slots:
     void updateButtonStates();
+    void setFileName(QString name);
 
 private:
     void createHelpWindow();
@@ -55,5 +61,9 @@ private:
     QWidget* helpWindow;
 
     bool running, paused;
+    bool unsaved;
+    bool unnamed;
+
+    QFile   currentFile;
 };
 #endif // MAINWINDOW_H

@@ -380,6 +380,10 @@
     <property name="title">
      <string>Файл</string>
     </property>
+    <addaction name="newAction"/>
+    <addaction name="saveAction"/>
+    <addaction name="saveAsAction"/>
+    <addaction name="openAction"/>
    </widget>
    <widget class="QMenu" name="menu_2">
     <property name="title">
@@ -400,6 +404,29 @@
   <action name="helpAction">
    <property name="text">
     <string>Справка</string>
+   </property>
+  </action>
+  <action name="newAction">
+   <property name="text">
+    <string>Новый</string>
+   </property>
+  </action>
+  <action name="saveAction">
+   <property name="text">
+    <string>Сохранить</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
+   </property>
+  </action>
+  <action name="saveAsAction">
+   <property name="text">
+    <string>Сохранить Как</string>
+   </property>
+  </action>
+  <action name="openAction">
+   <property name="text">
+    <string>Открыть</string>
    </property>
   </action>
  </widget>

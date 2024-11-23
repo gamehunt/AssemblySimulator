@@ -14,6 +14,7 @@
 #include <disassemblerdialog.h>
 #include <helpbrowser.h>
 #include <QHelpLink>
+#include <QFileDialog>
 #include <keystone/keystone.h>
 
 MainWindow::MainWindow(QWidget *parent)
@@ -52,7 +53,11 @@ MainWindow::MainWindow(QWidget *parent)
 
     createHelpWindow();
 
-    QObject::connect(ui->textEdit, &QPlainTextEdit::textChanged, this, [this](){ curAssembly->setCode(ui->textEdit->toPlainText().split("\n")); });
+    QObject::connect(ui->textEdit, &QPlainTextEdit::textChanged, this, [this](){
+        curAssembly->setCode(ui->textEdit->toPlainText().split("\n"));
+        unsaved = true;
+        setFileName(currentFile.fileName().section("/", -1, -1));
+    });
 
     QObject::connect(ui->runPushButton,  &QPushButton::clicked, this, [this](){
         if(running && !paused) {
@@ -74,11 +79,83 @@ MainWindow::MainWindow(QWidget *parent)
     QObject::connect(ui->memPushButton, &QPushButton::clicked, this, &MainWindow::showMemoryBrowser);
     QObject::connect(ui->aboutAction, &QAction::triggered, this, &MainWindow::about);
     QObject::connect(ui->helpAction, &QAction::triggered, this, &MainWindow::help);
+    QObject::connect(ui->saveAction, &QAction::triggered, this, [this](){ saveFile(false); });
+    QObject::connect(ui->saveAsAction, &QAction::triggered, this, [this](){ saveFile(true); });
+    QObject::connect(ui->openAction, &QAction::triggered, this, [this](){ openFile(); });
+    QObject::connect(ui->newAction, &QAction::triggered, this, [this](){ newFile(); });
+
+    newFile();
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+void MainWindow::setFileName(QString name) {
+    if(unsaved) {
+        setWindowTitle(QString("Assembly Simulator [%1*]").arg(name));
+    } else {
+        setWindowTitle(QString("Assembly Simulator [%1]").arg(name));
+    }
+}
+
+void MainWindow::newFile() {
+    if(currentFile.isOpen()) {
+        currentFile.close();
+    }
+    ui->textEdit->clear();
+    reset();
+    unsaved = true;
+    unnamed = true;
+    setFileName("unnamed.asm");
+}
+
+void MainWindow::saveFile(bool as) {
+    if(unnamed || as) {
+        if(currentFile.isOpen()) {
+            currentFile.close();
+        }
+        QString filename = QFileDialog::getSaveFileName(this, "Save file", "unnamed.asm", "Assembly files (*.asm)");
+        if(filename.isEmpty()) {
+            return;
+        }
+        currentFile.setFileName(filename);
+        if(!currentFile.open(QIODevice::ReadWrite)) {
+            QMessageBox::critical(this, "Error", "Failed to open save file.");
+            return;
+        }
+        unnamed = false;
+    }
+
+    unsaved = false;
+    setFileName(currentFile.fileName().section("/", -1, -1));
+
+    currentFile.seek(0);
+    currentFile.write(ui->textEdit->toPlainText().toStdString().c_str());
+    currentFile.resize(currentFile.pos());
+    currentFile.flush();
+}
+
+void MainWindow::openFile() {
+    QString filename = QFileDialog::getOpenFileName(this, "Open file", "/home", "Assembly files (*.asm)");
+
+    if(!filename.isEmpty()) {
+        newFile();
+
+        unnamed = false;
+        unsaved = false;
+
+        currentFile.setFileName(filename);
+        if(!currentFile.open(QIODevice::ReadWrite)) {
+            QMessageBox::critical(this, "Error", "Failed to open file.");
+            return;
+        }
+
+        setFileName(currentFile.fileName().section("/", -1, -1));
+
+        ui->textEdit->setPlainText(QString(currentFile.readAll()));
+    }
 }
 
 void MainWindow::registerAssembly(QString l, Assembly* as) {
