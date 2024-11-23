@@ -157,7 +157,7 @@ void MainWindow::run(bool up) {
     if(!paused) {
         curAssembly->execute();
         if(curAssembly->isFinished()) {
-            reset();
+        //    reset();
         }
     }
 }
