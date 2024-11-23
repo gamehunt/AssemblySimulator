@@ -27,6 +27,7 @@ private:
     uint64_t value(QString operand, int mode = MODE_ALL);
     int      jump(QString arg);
     void     interrupt(int i);
+    int64_t  lea(QString op);
 };
 
 #endif // AMD64ASSEMBLY_H

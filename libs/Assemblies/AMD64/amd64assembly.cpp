@@ -34,6 +34,8 @@ enum OP_TYPE {
     JNE,
     JG,
     JL,
+    JB,
+    JBE,
     JLE,
     JGE,
     JC,
@@ -41,7 +43,8 @@ enum OP_TYPE {
     RET,
     XCHG,
     INT,
-    TEST
+    TEST,
+    LEA
 };
 
 static const QMap<QString, OP_TYPE> __ops = {
@@ -71,11 +74,14 @@ static const QMap<QString, OP_TYPE> __ops = {
     {"jge" , JGE  },
     {"jle" , JLE  },
     {"jc"  , JC   },
+    {"jb"  , JB   },
+    {"jbe" , JBE  },
     {"call", CALL },
     {"ret" , RET  },
     {"xchg", XCHG },
     {"int" , INT  },
-    {"test", TEST }
+    {"test", TEST },
+    {"lea", LEA}
 };
 
 #define parse_args(args, n) args = _args.split(","); if (args.size() < n) { throw std::runtime_error("more args required"); }
@@ -184,7 +190,7 @@ void AMD64Assembly::interrupt(int i) {
 void AMD64Assembly::executeLine(QString line) {
     state.set("rip", currentLine * 8, true);
 
-    QStringList splitted = line.split(" ");
+    QStringList splitted = line.simplified().split(" ");
     QString op;
     QString _args;
     QStringList args;
@@ -226,21 +232,31 @@ void AMD64Assembly::executeLine(QString line) {
             break;
         case INC:
             parse_args(args, 1);
-            state.set(args[0], value(args[0]) + 1);
+            v = value(args[0]) + 1;
+            state.set(args[0], v);
+            setFlag(FL_ZF, v == 0);
+            setFlag(FL_SF, v < 0);
             break;
         case DEC:
             parse_args(args, 1);
-            state.set(args[0], value(args[0]) - 1);
+            v = value(args[0]) - 1;
+            state.set(args[0], v);
+            setFlag(FL_ZF, v == 0);
+            setFlag(FL_SF, v < 0);
             break;
         case ADD:
             parse_args(args, 2);
-            state.set(args[0], value(args[0]) + value(args[1]));
+            v = value(args[0]) + value(args[1]);
+            state.set(args[0], v);
+            setFlag(FL_ZF, v == 0);
+            setFlag(FL_SF, v < 0);
             break;
         case SUB:
             parse_args(args, 2);
             v1 = value(args[0]);
             v2 = value(args[1]);
             state.set(args[0], v1 - v2);
+            setFlag(FL_SF, v1 - v2 < 0);
             break;
         case MUL:
             parse_args(args, 2);
@@ -278,13 +294,19 @@ void AMD64Assembly::executeLine(QString line) {
             parse_args(args, 2);
             v1 = value(args[0], MODE_REG | MODE_MEM);
             v2 = value(args[1], MODE_IMM);
-            state.set(args[0], v1 << v2);
+            v = v1 << v2;
+            state.set(args[0], v);
+            setFlag(FL_ZF, v == 0);
+            setFlag(FL_CF, (v1 & (((uint64_t) 1) << (63 - v2))) != 0);
             break;
         case SHR:
             parse_args(args, 2);
             v1 = value(args[0], MODE_REG | MODE_MEM);
             v2 = value(args[1], MODE_IMM);
-            state.set(args[0], v1 >> v2);
+            v = v1 >> v2;
+            state.set(args[0], v);
+            setFlag(FL_ZF, v == 0);
+            setFlag(FL_CF, (v1 & (1 << v2)) != 0);
             break;
         case CMP:
             parse_args(args, 2);
@@ -294,16 +316,8 @@ void AMD64Assembly::executeLine(QString line) {
             v = v1 - v2;
 
             setFlag(FL_ZF, v == 0);
-
-            // TODO proper logic
-            if(v1 < v2) {
-                setFlag(FL_SF, 1);
-                setFlag(FL_OF, 0);
-            } else {
-                setFlag(FL_SF, 0);
-                setFlag(FL_OF, 0);
-            }
-
+            setFlag(FL_SF, v < 0);
+            setFlag(FL_OF, 0); // TODO
             break;
         case JE:
             parse_args(args, 1);
@@ -322,6 +336,20 @@ void AMD64Assembly::executeLine(QString line) {
         case JL:
             parse_args(args, 1);
             if(getFlag(FL_SF) != getFlag(FL_OF)) {
+                nextLine = jump(args[0]);
+                return;
+            }
+            break;
+        case JB:
+            parse_args(args, 1);
+            if(getFlag(FL_CF)) {
+                nextLine = jump(args[0]);
+                return;
+            }
+            break;
+        case JBE:
+            parse_args(args, 1);
+            if(getFlag(FL_CF) || getFlag(FL_ZF)) {
                 nextLine = jump(args[0]);
                 return;
             }
@@ -383,6 +411,10 @@ void AMD64Assembly::executeLine(QString line) {
             setFlag(FL_SF, v < 0);
             // TODO PF
             break;
+        case LEA:
+            parse_args(args, 2);
+            set(args[0], lea(args[1]));
+            break;
         default:
             throw std::runtime_error("unimplemented/invalid opcode");
         }
@@ -403,4 +435,12 @@ void AMD64Assembly::set(QString operand, uint64_t val) {
     } else {
         state.set(operand, val);
     }
+}
+
+int64_t AMD64Assembly::lea(QString op) {
+    if(!op.startsWith("[") || !op.endsWith("]")) {
+        throw std::runtime_error("invalid syntax");
+    }
+
+    return value(op.mid(1, op.length() - 2));
 }

@@ -11,13 +11,15 @@
         <filterAttribute>1.0</filterAttribute>
         <toc>
             <section title="User Manual" ref="index.html">
+                <section title="Пользовательский интерфейс" ref="index.html#gui"/>
             </section>
         </toc>
         <keywords>
         </keywords>
         <files>
-            <file>style.css</file>
+            <file>*.css</file>
             <file>*.html</file>
+            <file>images/*</file>
         </files>
     </filterSection>
 </QtHelpProject>

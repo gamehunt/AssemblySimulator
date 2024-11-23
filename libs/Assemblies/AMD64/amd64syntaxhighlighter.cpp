@@ -35,11 +35,14 @@ AMD64SyntaxHighlighter::AMD64SyntaxHighlighter(QTextDocument* parent)
         QStringLiteral("\\bjge\\b" ),
         QStringLiteral("\\bjle\\b" ),
         QStringLiteral("\\bjc\\b"  ),
+        QStringLiteral("\\bjbe\\b" ),
+        QStringLiteral("\\bjb\\b"  ),
         QStringLiteral("\\bcall\\b"),
         QStringLiteral("\\bret\\b" ),
         QStringLiteral("\\bxchg\\b" ),
         QStringLiteral("\\bint\\b" ),
-        QStringLiteral("\\btest\\b")
+        QStringLiteral("\\btest\\b"),
+        QStringLiteral("\\blea\\b"),
     };
 
     for (const QString &pattern : opPatterns) {
