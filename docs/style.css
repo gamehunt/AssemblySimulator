@@ -5,3 +5,8 @@ body {
 h1 {
     text-align: center;
 }
+
+.gui-list {
+    font-weight: normal;
+    font-size: 16pt;
+}
