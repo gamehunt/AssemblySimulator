@@ -38,6 +38,9 @@ public:
     void reset();
     void refresh();
 
+    QStringList getRegisters(bool includeIndirect = false);
+    QStringList getAliases(QString reg = QString());
+
 private:
     QMap<QString, Register> _state;
     QMap<QString, Alias>    _aliases;

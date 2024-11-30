@@ -451,7 +451,12 @@ uint64_t AMD64Assembly::lea(QString operand) {
         throw std::runtime_error("memory operand required");
     }
     cparse::TokenMap vars;
-    vars["pi"] = 3.14;
-    std::cout << cparse::calculator::calculate("-pi+1", &vars) << std::endl;
-    return value(operand.sliced(1, operand.size() - 2), MODE_IMM | MODE_REG);
+    for(QString reg: state.getRegisters()) {
+        vars[reg.toStdString().c_str()] = state.get(reg);
+    }
+    for(QString reg: state.getAliases()) {
+        vars[reg.toStdString().c_str()] = state.get(reg);
+    }
+    cparse::packToken tok = cparse::calculator::calculate(operand.sliced(1, operand.size() - 2).toStdString().c_str(), &vars);
+    return tok.asInt();
 }

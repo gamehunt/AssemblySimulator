@@ -72,3 +72,31 @@ void StateManager::reset() {
         set(kvp, 0, true);
     }
 }
+
+QStringList StateManager::getRegisters(bool allowIndirect) {
+    QStringList result;
+    if(allowIndirect) {
+        result = _state.keys();
+    } else {
+        for(QString s : _state.keys()) {
+            if(_state[s].direct) {
+                result << s;
+            }
+        }
+    }
+    return result;
+}
+
+QStringList StateManager::getAliases(QString reg) {
+    QStringList result;
+    if(reg.isEmpty()) {
+        result = _aliases.keys();
+    } else {
+        for(QString s : _aliases.keys()) {
+            if(_aliases[s].src == reg) {
+                result << s;
+            }
+        }
+    }
+    return result;
+}
