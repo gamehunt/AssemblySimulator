@@ -25,7 +25,7 @@ public:
     bool isFinished() const;
     int  getCurrentLine();
 
-    virtual QSyntaxHighlighter* getSyntaxHighlighter() { return nullptr; };
+    virtual QSyntaxHighlighter* getSyntaxHighlighter() { return nullptr; }
 
 public slots:
     virtual void error(QString err);

@@ -2,54 +2,11 @@
 #include "amd64states.h"
 #include "amd64syntaxhighlighter.h"
 
+#include "libs/LibParse/shunting-yard.h"
+
 #include <QTimer>
 
-#define FL_CF (1 << 0)
-#define FL_PF (1 << 2)
-#define FL_AF (1 << 4)
-#define FL_ZF (1 << 5)
-#define FL_SF (1 << 6)
-#define FL_DF (1 << 10)
-#define FL_OF (1 << 11)
-
-enum OP_TYPE {
-    NOP,
-    MOV,
-    PUSH,
-    POP,
-    INC,
-    DEC,
-    ADD,
-    SUB,
-    DIV,
-    MUL,
-    AND,
-    OR,
-    XOR,
-    SHL,
-    SHR,
-    CMP,
-    JMP,
-    JE,
-    JNE,
-    JG,
-    JL,
-    JB,
-    JBE,
-    JLE,
-    JGE,
-    JC,
-    CALL,
-    RET,
-    XCHG,
-    INT,
-    TEST,
-    LEA,
-    NOT,
-    NEG
-};
-
-static const QMap<QString, OP_TYPE> __ops = {
+const QMap<QString, OP_TYPE> AMD64Assembly::__ops = {
     {"nop" , NOP  },
     {"mov" , MOV  },
     {"push", PUSH },
@@ -88,7 +45,18 @@ static const QMap<QString, OP_TYPE> __ops = {
     {"neg", NEG}
 };
 
+const QMap<QString, OP_SIZE> AMD64Assembly::__sizes = {
+    {"byte",  S8  },
+    {"word",  S16 },
+    {"dword", S32 },
+    {"qword", S64 }
+};
+
 #define parse_args(args, n) args = _args.split(","); if (args.size() < n) { throw std::runtime_error("more args required"); }
+
+AMD64Assembly::Context::Context() {
+    op   = OP_INVALID;
+}
 
 AMD64Assembly::AMD64Assembly() {
     state.setRepresentationWidget(new AMD64States());
@@ -191,251 +159,278 @@ void AMD64Assembly::interrupt(int i) {
     throw std::runtime_error("Unknown interrupt");
 }
 
-void AMD64Assembly::executeLine(QString line) {
-    state.set("rip", currentLine * 8, true);
+bool AMD64Assembly::isSizeModifier(QString token) {
+    return __sizes.contains(token);
+}
 
+bool AMD64Assembly::isLabel(QString token) {
+    return !__ops.contains("op") && token.endsWith(":");
+}
+
+bool AMD64Assembly::isOperand(QString token) {
+    return __ops.contains(token);
+}
+
+OP_SIZE AMD64Assembly::size(QString token) {
+    return __sizes[token];
+}
+
+void AMD64Assembly::parseContext(QString line, AMD64Assembly::Context* ctx) {
     QStringList splitted = line.simplified().split(" ");
-    QString op;
-    QString _args;
-    QStringList args;
+    QString op = splitted[0];
 
+    if(isOperand(op)) {
+        ctx->op = __ops[op];
+    } else if (isLabel(op)) {
+        ctx->op = OP_TYPE::LABEL;
+    } else {
+        throw std::runtime_error("Unknown opcode");
+    }
+
+    if(splitted.size() > 1) {
+        QString rawArgs;
+        for(int i = 1; i < splitted.size(); i++) {
+            rawArgs.append(splitted[i]);
+        }
+        QStringList args = rawArgs.split(",");
+        for(int i = 0; i < args.size(); i++) {
+            ctx->args.push_back(args[i]);
+        }
+    }
+}
+
+#define requires_args(n) if(args.size() < n) { throw std::runtime_error("more arguments required"); }
+
+void AMD64Assembly::executeContext(AMD64Assembly::Context& ctx) {
     int64_t v = 0;
     int64_t v1, v2;
     v1 = v2 = 0;
-
-    op = splitted[0];
-    for(int i = 1; i < splitted.size(); i++) {
-        _args.append(splitted[i]);
-    }
-
-    if(!__ops.contains(op)) {
-        if(!op.endsWith(":")) {
-            throw std::runtime_error("Unknown opcode");
+    QList<QString> args = ctx.args;
+    switch(ctx.op) {
+    case LABEL:
+    case NOP:
+        break;
+    case MOV:
+        requires_args(2)
+        set(args[0], value(args[1]));
+        if(args[0] == "rsp") {
+            memory.setStackPointer(state.get("rsp"));
         }
-        // It's a label, skip it
-    } else {
-        switch(__ops[op]) {
-        case NOP:
-            break;
-        case MOV:
-            parse_args(args, 2);
-            set(args[0], value(args[1]));
-            if(args[0] == "rsp") {
-                memory.setStackPointer(state.get("rsp"));
-            }
-            break;
-        case PUSH:
-            parse_args(args, 1);
-            memory.push(value(args[0]));
-            state.set("rsp", memory.getStackPointer());
-            break;
-        case POP:
-            parse_args(args, 1);
-            state.set(args[0], memory.pop());
-            state.set("rsp", memory.getStackPointer());
-            break;
-        case INC:
-            parse_args(args, 1);
-            v = value(args[0]) + 1;
-            state.set(args[0], v);
-            setFlag(FL_ZF, v == 0);
-            setFlag(FL_SF, v < 0);
-            break;
-        case DEC:
-            parse_args(args, 1);
-            v = value(args[0]) - 1;
-            state.set(args[0], v);
-            setFlag(FL_ZF, v == 0);
-            setFlag(FL_SF, v < 0);
-            break;
-        case ADD:
-            parse_args(args, 2);
-            v = value(args[0]) + value(args[1]);
-            state.set(args[0], v);
-            setFlag(FL_ZF, v == 0);
-            setFlag(FL_SF, v < 0);
-            break;
-        case SUB:
-            parse_args(args, 2);
-            v1 = value(args[0]);
-            v2 = value(args[1]);
-            state.set(args[0], v1 - v2);
-            setFlag(FL_SF, v1 - v2 < 0);
-            break;
-        case MUL:
-            parse_args(args, 1);
-            state.set("rax", value(args[0]));
-            break;
-        case DIV:
-            parse_args(args, 1);
-            v1 = value(args[1]);
-            v2 = value("rax");
-            if(v1 == 0) {
-                throw std::runtime_error("zero division");
-            }
-            state.set("rax", v2 / v1);
-            state.set("rdx", v2 % v1);
-            break;
-        case AND:
-            parse_args(args, 2);
-            v1 = value(args[0], MODE_REG | MODE_MEM);
-            v2 = value(args[1]);
-            state.set(args[0], v1 & v2);
-            break;
-        case OR:
-            parse_args(args, 2);
-            v1 = value(args[0], MODE_REG | MODE_MEM);
-            v2 = value(args[1]);
-            state.set(args[0], v1 | v2);
-            break;
-        case XOR:
-            parse_args(args, 2);
-            v1 = value(args[0], MODE_REG | MODE_MEM);
-            v2 = value(args[1]);
-            state.set(args[0], v1 ^ v2);
-            break;
-        case SHL:
-            parse_args(args, 2);
-            v1 = value(args[0], MODE_REG | MODE_MEM);
-            v2 = value(args[1], MODE_IMM);
-            v = v1 << v2;
-            state.set(args[0], v);
-            setFlag(FL_ZF, v == 0);
-            setFlag(FL_CF, (v1 & (((uint64_t) 1) << (63 - v2))) != 0);
-            break;
-        case SHR:
-            parse_args(args, 2);
-            v1 = value(args[0], MODE_REG | MODE_MEM);
-            v2 = value(args[1], MODE_IMM);
-            v = v1 >> v2;
-            state.set(args[0], v);
-            setFlag(FL_ZF, v == 0);
-            setFlag(FL_CF, (v1 & (1 << v2)) != 0);
-            break;
-        case CMP:
-            parse_args(args, 2);
-
-            v1 = value(args[0]);
-            v2 = value(args[1]);
-            v = v1 - v2;
-
-            setFlag(FL_ZF, v == 0);
-            setFlag(FL_SF, v < 0);
-            setFlag(FL_OF, 0); // TODO
-            break;
-        case JE:
-            parse_args(args, 1);
-            if(getFlag(FL_ZF)) {
-                nextLine = jump(args[0]);
-                return;
-            }
-            break;
-        case JNE:
-            parse_args(args, 1);
-            if(!getFlag(FL_ZF)) {
-                nextLine = jump(args[0]);
-                return;
-            }
-            break;
-        case JL:
-            parse_args(args, 1);
-            if(getFlag(FL_SF) != getFlag(FL_OF)) {
-                nextLine = jump(args[0]);
-                return;
-            }
-            break;
-        case JB:
-            parse_args(args, 1);
-            if(getFlag(FL_CF)) {
-                nextLine = jump(args[0]);
-                return;
-            }
-            break;
-        case JBE:
-            parse_args(args, 1);
-            if(getFlag(FL_CF) || getFlag(FL_ZF)) {
-                nextLine = jump(args[0]);
-                return;
-            }
-            break;
-        case JLE:
-            parse_args(args, 1);
-            if(getFlag(FL_ZF) || (getFlag(FL_SF) != getFlag(FL_OF))) {
-                nextLine = jump(args[0]);
-                return;
-            }
-            break;
-        case JG:
-            parse_args(args, 1);
-            if(!getFlag(FL_ZF) && (getFlag(FL_SF) == getFlag(FL_OF))) {
-                nextLine = jump(args[0]);
-                return;
-            }
-            break;
-        case JGE:
-            parse_args(args, 1);
-            if(getFlag(FL_SF) == getFlag(FL_OF)) {
-                nextLine = jump(args[0]);
-                return;
-            }
-            break;
-        case JMP:
-            parse_args(args, 1);
+        break;
+    case PUSH:
+        requires_args(1)
+        memory.push(value(args[0]));
+        state.set("rsp", memory.getStackPointer());
+        break;
+    case POP:
+        requires_args(1)
+        state.set(args[0], memory.pop());
+        state.set("rsp", memory.getStackPointer());
+        break;
+    case INC:
+        requires_args(1)
+        v = value(args[0]) + 1;
+        state.set(args[0], v);
+        setFlag(FL_ZF, v == 0);
+        setFlag(FL_SF, v < 0);
+        break;
+    case DEC:
+        requires_args(1)
+        v = value(args[0]) - 1;
+        state.set(args[0], v);
+        setFlag(FL_ZF, v == 0);
+        setFlag(FL_SF, v < 0);
+        break;
+    case ADD:
+        requires_args(2)
+        v = value(args[0]) + value(args[1]);
+        state.set(args[0], v);
+        setFlag(FL_ZF, v == 0);
+        setFlag(FL_SF, v < 0);
+        break;
+    case SUB:
+        requires_args(2)
+        v1 = value(args[0]);
+        v2 = value(args[1]);
+        state.set(args[0], v1 - v2);
+        setFlag(FL_SF, v1 - v2 < 0);
+        break;
+    case MUL:
+        requires_args(1)
+        state.set("rax", state.get("rax") * value(args[0]));
+        break;
+    case DIV:
+        requires_args(1)
+        v1 = value(args[1]);
+        v2 = value("rax");
+        if(v1 == 0) {
+            throw std::runtime_error("zero division");
+        }
+        state.set("rax", v2 / v1);
+        state.set("rdx", v2 % v1);
+        break;
+    case AND:
+        requires_args(2)
+        v1 = value(args[0], MODE_REG | MODE_MEM);
+        v2 = value(args[1]);
+        state.set(args[0], v1 & v2);
+        break;
+    case OR:
+        requires_args(2)
+        v1 = value(args[0], MODE_REG | MODE_MEM);
+        v2 = value(args[1]);
+        state.set(args[0], v1 | v2);
+        break;
+    case XOR:
+        requires_args(2)
+        v1 = value(args[0], MODE_REG | MODE_MEM);
+        v2 = value(args[1]);
+        state.set(args[0], v1 ^ v2);
+        break;
+    case SHL:
+        requires_args(2)
+        v1 = value(args[0], MODE_REG | MODE_MEM);
+        v2 = value(args[1], MODE_IMM);
+        v = v1 << v2;
+        state.set(args[0], v);
+        setFlag(FL_ZF, v == 0);
+        setFlag(FL_CF, (v1 & (((uint64_t) 1) << (63 - v2))) != 0);
+        break;
+    case SHR:
+        requires_args(2)
+        v1 = value(args[0], MODE_REG | MODE_MEM);
+        v2 = value(args[1], MODE_IMM);
+        v = v1 >> v2;
+        state.set(args[0], v);
+        setFlag(FL_ZF, v == 0);
+        setFlag(FL_CF, (v1 & (1 << v2)) != 0);
+        break;
+    case CMP:
+        requires_args(2)
+        v1 = value(args[0]);
+        v2 = value(args[1]);
+        v = v1 - v2;
+        setFlag(FL_ZF, v == 0);
+        setFlag(FL_SF, v < 0);
+        setFlag(FL_OF, 0); // TODO
+        break;
+    case JE:
+        requires_args(1)
+        if(getFlag(FL_ZF)) {
             nextLine = jump(args[0]);
             return;
-        case CALL:
-            parse_args(args, 1);
-            memory.push((currentLine + 1) * 8);
-            state.set("rsp", memory.getStackPointer());
+        }
+        break;
+    case JNE:
+        requires_args(1)
+        if(!getFlag(FL_ZF)) {
             nextLine = jump(args[0]);
             return;
-        case RET:
-            v = memory.pop();
-            state.set("rsp", memory.getStackPointer());
-            nextLine = v / 8;
-            return;
-        case XCHG:
-            parse_args(args, 2);
-            v = value(args[0]);
-            set(args[0], value(args[1]));
-            set(args[1], v);
-            break;
-        case INT:
-            parse_args(args, 1);
-            interrupt(value(args[0], MODE_IMM));
-            break;
-        case TEST:
-            parse_args(args, 2);
-            v1 = value(args[0], MODE_REG | MODE_MEM);
-            v2 = value(args[1]);
-            v  = v1 & v2;
-            setFlag(FL_ZF, v == 0);
-            setFlag(FL_OF, 0);
-            setFlag(FL_CF, 0);
-            setFlag(FL_SF, v < 0);
-            // TODO PF
-            break;
-        case LEA:
-            parse_args(args, 2);
-            set(args[0], lea(args[1]));
-            break;
-        case NOT:
-            parse_args(args, 1);
-            v = value(args[0], MODE_REG | MODE_MEM);
-            set(args[0], ~v);
-            break;
-        case NEG:
-            parse_args(args, 1);
-            v = value(args[0], MODE_REG | MODE_MEM);
-            set(args[0], (~v) + 1);
-            break;
-        default:
-            throw std::runtime_error("unimplemented/invalid opcode");
         }
-
+        break;
+    case JL:
+        requires_args(1)
+        if(getFlag(FL_SF) != getFlag(FL_OF)) {
+            nextLine = jump(args[0]);
+            return;
+        }
+        break;
+    case JB:
+        requires_args(1)
+        if(getFlag(FL_CF)) {
+            nextLine = jump(args[0]);
+            return;
+        }
+        break;
+    case JBE:
+        requires_args(1)
+        if(getFlag(FL_CF) || getFlag(FL_ZF)) {
+            nextLine = jump(args[0]);
+            return;
+        }
+        break;
+    case JLE:
+        requires_args(1)
+        if(getFlag(FL_ZF) || (getFlag(FL_SF) != getFlag(FL_OF))) {
+            nextLine = jump(args[0]);
+            return;
+        }
+        break;
+    case JG:
+        requires_args(1)
+        if(!getFlag(FL_ZF) && (getFlag(FL_SF) == getFlag(FL_OF))) {
+            nextLine = jump(args[0]);
+            return;
+        }
+        break;
+    case JGE:
+        requires_args(1)
+        if(getFlag(FL_SF) == getFlag(FL_OF)) {
+            nextLine = jump(args[0]);
+            return;
+        }
+        break;
+    case JMP:
+        requires_args(1)
+        nextLine = jump(args[0]);
+        return;
+    case CALL:
+        requires_args(1)
+        memory.push((currentLine + 1) * 8);
+        state.set("rsp", memory.getStackPointer());
+        nextLine = jump(args[0]);
+        return;
+    case RET:
+        v = memory.pop();
+        state.set("rsp", memory.getStackPointer());
+        nextLine = v / 8;
+        return;
+    case XCHG:
+        requires_args(2)
+        v = value(args[0]);
+        set(args[0], value(args[1]));
+        set(args[1], v);
+        break;
+    case INT:
+        requires_args(1)
+        interrupt(value(args[0], MODE_IMM));
+        break;
+    case TEST:
+        requires_args(2)
+        v1 = value(args[0], MODE_REG | MODE_MEM);
+        v2 = value(args[1]);
+        v  = v1 & v2;
+        setFlag(FL_ZF, v == 0);
+        setFlag(FL_OF, 0);
+        setFlag(FL_CF, 0);
+        setFlag(FL_SF, v < 0);
+        // TODO PF
+        break;
+    case LEA:
+        requires_args(2)
+        set(args[0], lea(args[1]));
+        break;
+    case NOT:
+        requires_args(1)
+        v = value(args[0], MODE_REG | MODE_MEM);
+        set(args[0], ~v);
+        break;
+    case NEG:
+        requires_args(1)
+        v = value(args[0], MODE_REG | MODE_MEM);
+        set(args[0], (~v) + 1);
+        break;
+    default:
+        throw std::runtime_error("unimplemented/invalid opcode");
     }
+     nextLine = currentLine + 1;
+}
 
-    nextLine = currentLine + 1;
+void AMD64Assembly::executeLine(QString line) {
+    state.set("rip", currentLine * 8, true);
+    Context ctx;
+    parseContext(line, &ctx);
+    executeContext(ctx);
 }
 
 QSyntaxHighlighter* AMD64Assembly::getSyntaxHighlighter() {
@@ -455,5 +450,8 @@ uint64_t AMD64Assembly::lea(QString operand) {
     if(!operand.startsWith("[") && !operand.endsWith("]")) {
         throw std::runtime_error("memory operand required");
     }
+    cparse::TokenMap vars;
+    vars["pi"] = 3.14;
+    std::cout << cparse::calculator::calculate("-pi+1", &vars) << std::endl;
     return value(operand.sliced(1, operand.size() - 2), MODE_IMM | MODE_REG);
 }

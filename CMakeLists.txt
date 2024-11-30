@@ -14,6 +14,7 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Help)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
+add_subdirectory(libs/LibParse)
 add_subdirectory(libs/LibAssembly)
 add_subdirectory(libs/Assemblies/AMD64)
 add_subdirectory(docs)

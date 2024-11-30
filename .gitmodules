@@ -1,0 +1,3 @@
+[submodule "libs/LibParse/cparse"]
+	path = libs/LibParse/cparse
+	url = https://github.com/cparse/cparse

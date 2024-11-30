@@ -18,6 +18,6 @@ add_library(AMD64 SHARED
   amd64assembly.h amd64assembly.cpp amd64syntaxhighlighter.cpp amd64syntaxhighlighter.h amd64states.ui amd64states.cpp amd64states.h
 )
 
-target_link_libraries(AMD64 PRIVATE Qt${QT_VERSION_MAJOR}::Gui Qt${QT_VERSION_MAJOR}::Widgets Assembly)
+target_link_libraries(AMD64 PRIVATE Qt${QT_VERSION_MAJOR}::Gui Qt${QT_VERSION_MAJOR}::Widgets Assembly Parse)
 
 target_compile_definitions(AMD64 PRIVATE AMD64_LIBRARY)
