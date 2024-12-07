@@ -142,7 +142,7 @@ void MemoryBrowserWidget::editData(QModelIndex index) {
 }
 
 void MemoryBrowserWidget::removeData(QModelIndex index) {
-    persistentData.remove(index.siblingAtColumn(0).data().toULongLong());
+    persistentData.remove(index.siblingAtColumn(0).data().toString().toULongLong(nullptr, 16));
     refresh();
 }
 
