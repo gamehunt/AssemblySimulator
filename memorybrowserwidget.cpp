@@ -128,8 +128,8 @@ void MemoryBrowserWidget::addData() {
 
 void MemoryBrowserWidget::editData(QModelIndex index) {
     MemoryEditDialog dial;
-    dial.setValues(index.siblingAtColumn(0).data().toULongLong(),
-                   index.siblingAtColumn(1).data().toULongLong());
+    dial.setValues(index.siblingAtColumn(0).data().toString().toULongLong(nullptr, 16),
+                   index.siblingAtColumn(1).data().toString().toULongLong(nullptr, 16));
     if(dial.exec() == QDialog::Accepted) {
         try {
             auto r = dial.getValues();
