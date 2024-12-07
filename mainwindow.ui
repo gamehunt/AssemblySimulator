@@ -405,10 +405,16 @@
    <property name="text">
     <string>Справка</string>
    </property>
+   <property name="shortcut">
+    <string>F1</string>
+   </property>
   </action>
   <action name="newAction">
    <property name="text">
     <string>Новый</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+N</string>
    </property>
   </action>
   <action name="saveAction">
@@ -427,6 +433,9 @@
   <action name="openAction">
    <property name="text">
     <string>Открыть</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
    </property>
   </action>
  </widget>

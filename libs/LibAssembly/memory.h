@@ -5,12 +5,31 @@
 #include <QObject>
 #include <QtDebug>
 
-class Memory : public QObject
+#include "LibAssembly_global.h"
+
+/*!
+ *   \brief Менеджер памяти
+ *   \author Lizord
+ *   \date Декабрь 2024
+ *
+ *   Отвечает за управление памятью, в т.ч стеком
+ */
+class LIBASSEMBLY_EXPORT Memory : public QObject
 {
     Q_OBJECT
+
 public:
+    /*!
+     *  \brief Конструктор
+     *  \param parent - родитель
+     */
     explicit Memory(QObject *parent = nullptr);
 
+    /*!
+     *  \brief Устанавливает значение по адресу
+     *  \param address - Адрес памяти
+     *  \param value - значение
+     */
     template<typename T> void set(uint64_t address, T value) {
         int size = sizeof(T);
         if(size == 1) {
@@ -24,6 +43,11 @@ public:
         }
     }
 
+    /*!
+     *  \brief Получает значение по адресу
+     *  \param address - Адрес памяти
+     *  \returns значение
+     */
     template<typename T> T get(uint64_t address) const {
         if(!memory.contains(address)) {
             return 0;
@@ -41,26 +65,82 @@ public:
         }
     }
 
+    /*!
+     *  \brief Убирает значение с вершины стека
+     *  \return значение с вершины стека
+     */
     uint64_t pop();
-    void     push(uint64_t value);
 
+    /*!
+     *  \brief Кладёт значение на вершину стека
+     *  \param value - значение
+     */
+    void push(uint64_t value);
+
+    /*!
+     *  \brief  Возвращает адрес стека
+     *  \return адрес стека
+     */
     static uint64_t getStackAddress();
+
+    /*!
+     *  \brief Устанавливает адрес стека
+     *  \param newStackAddress - новый адрес стека
+     */
     static void setStackAddress(uint64_t newStackAddress);
 
+    /*!
+     *  \brief  Возвращает указатель на вершину стека
+     *  \return адрес вершины стека
+     */
     uint64_t getStackPointer() const;
+
+    /*!
+     *  \brief Устанавливает указатель на вершину стека
+     *  \param newStackPointer - адрес новой вершины стека
+     */
     void setStackPointer(uint64_t newStackPointer);
 
+    /*!
+     *  \brief Сбрасывает состояние памяти
+     */
     void reset();
 
+    /*!
+     *  \brief  Возвращает ссылку на словарь со всеми значениями в памяти
+     *  \return Ссылка на словарь со всеми значениями в памяти
+     */
     QMap<uint64_t, uint8_t>& getRaw();
 
 signals:
+    /*!
+     *  \brief Отправляется когда изменяется значение в памяти
+     *  \param addr - адрес ячейки
+     *  \param oldValue - старое значение
+     *  \param newValue - новое значение
+     */
     void memoryChanged(uint64_t addr, uint8_t oldValue, uint8_t newValue);
+
+    /*!
+     *  \brief Отправляется когда изменяется стек
+     *  \param stackPointer - новое значение стека
+     */
     void stackChanged(uint64_t stackPointer);
 
 protected:
+    /*!
+     *  \brief Адрес стека
+     */
     static uint64_t stackAddress;
+
+    /*!
+     *  \brief Адрес вершины стека
+     */
     uint64_t stackPointer;
+
+    /*!
+     *  \brief Словарь со значениями памяти
+     */
     QMap<uint64_t, uint8_t> memory;
 };
 

@@ -10,6 +10,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core Widgets)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Widgets)
+find_package(Doxygen)
 
 add_library(Assembly SHARED
   LibAssembly_global.h
@@ -21,6 +22,13 @@ add_library(Assembly SHARED
   statemanager.h
   memory.cpp
   statemanager.cpp
+)
+
+set(DOXYGEN_GENERATE_HTML YES)
+doxygen_add_docs(
+    doxygen
+    ${PROJECT_SOURCE_DIR}
+    ALL
 )
 
 target_link_libraries(Assembly PRIVATE Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::Widgets)
