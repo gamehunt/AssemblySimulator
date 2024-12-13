@@ -39,6 +39,7 @@ qt_add_executable(AssemblySimulator
         memoryeditdialog.h memoryeditdialog.cpp memoryeditdialog.ui
         disassemblerdialog.h disassemblerdialog.cpp disassemblerdialog.ui
         helpbrowser.h helpbrowser.cpp
+        README.md
 )
 
 # Define target properties for Android with Qt 6 as:
