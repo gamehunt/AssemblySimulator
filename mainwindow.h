@@ -41,7 +41,7 @@ public slots:
 
     void newFile();
     void saveFile(bool as);
-    void openFile();
+    void openFile(QString file = "");
 
     void out(QString message);
     void clearCmd();

@@ -25,6 +25,7 @@ private:
 
     QTextCharFormat operationFormat;
     QTextCharFormat registerFormat;
+    QTextCharFormat commentFormat;
 };
 
 #endif // AMD64SYNTAXHIGHLIGHTER_H

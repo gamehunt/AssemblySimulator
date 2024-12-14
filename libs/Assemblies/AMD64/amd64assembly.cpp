@@ -438,7 +438,7 @@ void AMD64Assembly::executeContext(AMD64Assembly::Context& ctx) {
 
 void AMD64Assembly::executeLine(QString line) {
     line = line.simplified();
-    if(line.isEmpty()) {
+    if(line.isEmpty() || line.startsWith(";")) {
         nextLine = currentLine + 1;
         return;
     }

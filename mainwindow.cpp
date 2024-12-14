@@ -15,6 +15,7 @@
 #include <helpbrowser.h>
 #include <QHelpLink>
 #include <QFileDialog>
+#include <QScrollBar>
 #include <keystone/keystone.h>
 
 MainWindow::MainWindow(QWidget *parent)
@@ -84,7 +85,7 @@ MainWindow::MainWindow(QWidget *parent)
     QObject::connect(ui->openAction, &QAction::triggered, this, [this](){ openFile(); });
     QObject::connect(ui->newAction, &QAction::triggered, this, [this](){ newFile(); });
 
-    newFile();
+    openFile("examples/1.asm");
 }
 
 MainWindow::~MainWindow()
@@ -137,8 +138,10 @@ void MainWindow::saveFile(bool as) {
     currentFile.flush();
 }
 
-void MainWindow::openFile() {
-    QString filename = QFileDialog::getOpenFileName(this, "Open file", "/home", "Assembly files (*.asm)");
+void MainWindow::openFile(QString filename) {
+    if(filename.isEmpty()) {
+         filename = QFileDialog::getOpenFileName(this, "Open file", "/home", "Assembly files (*.asm)");
+    }
 
     if(!filename.isEmpty()) {
         newFile();
@@ -148,7 +151,7 @@ void MainWindow::openFile() {
 
         currentFile.setFileName(filename);
         if(!currentFile.open(QIODevice::ReadWrite)) {
-            QMessageBox::critical(this, "Error", "Failed to open file.");
+            QMessageBox::critical(this, "Error", QString("Failed to open file: %1.").arg(currentFile.errorString()));
             return;
         }
 
@@ -229,15 +232,13 @@ void MainWindow::run(bool up) {
     running = true;
     updateButtonStates();
     if(!up) {
-        qDebug() << "Inj!";
         memory.setup(curAssembly);
         memory.injectMemory();
+        out("============= Run =============");
+
     }
     if(!paused) {
         curAssembly->execute();
-        if(curAssembly->isFinished()) {
-        //    reset();
-        }
     }
 }
 
@@ -345,7 +346,12 @@ void MainWindow::help() {
 }
 
 void MainWindow::out(QString message) {
-    ui->messagesTextEdit->insertPlainText(message + "\n");
+    ui->messagesTextEdit->insertPlainText(
+        QString("[%1] %2\n")
+            .arg(QTime::currentTime().toString("HH:mm:ss"), message)
+    );
+    ui->messagesTextEdit->verticalScrollBar()
+        ->setValue(ui->messagesTextEdit->verticalScrollBar()->maximum());
 }
 
 void MainWindow::clearCmd() {

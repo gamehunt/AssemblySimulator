@@ -1,3 +1,7 @@
+; Example file #1
+; Default placeholder file for AssemblySimulator
+; Outputs number 1 - 9 into the console
+
 _start:
 mov rax, 1
 mov rbx, 10

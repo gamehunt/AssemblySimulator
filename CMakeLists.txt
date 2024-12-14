@@ -40,7 +40,7 @@ qt_add_executable(AssemblySimulator
         disassemblerdialog.h disassemblerdialog.cpp disassemblerdialog.ui
         helpbrowser.h helpbrowser.cpp
         README.md
-        examples.qrc
+
 )
 
 # Define target properties for Android with Qt 6 as:
@@ -94,3 +94,9 @@ add_custom_target(install_assemblies ALL
     COMMAND cp ${CMAKE_BINARY_DIR}/libs/Assemblies/AMD64/*.so ${CMAKE_BINARY_DIR}/assemblies/
     DEPENDS AMD64
 )
+
+add_custom_target(install_examples ALL
+    COMMAND cp -r ${CMAKE_CURRENT_SOURCE_DIR}/examples ${CMAKE_BINARY_DIR}/examples
+    DEPENDS AMD64
+)
+

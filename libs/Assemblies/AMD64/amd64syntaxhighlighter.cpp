@@ -54,7 +54,7 @@ AMD64SyntaxHighlighter::AMD64SyntaxHighlighter(QTextDocument* parent)
     }
 
     registerFormat.setForeground(QColor(0xFF4C00));
-    operationFormat.setFontWeight(QFont::Bold);
+    registerFormat.setFontWeight(QFont::Bold);
 
     const QString registerPatterns[] = {
         QStringLiteral("\\brax\\b"),
@@ -100,6 +100,12 @@ AMD64SyntaxHighlighter::AMD64SyntaxHighlighter(QTextDocument* parent)
         rule.format = registerFormat;
         highlightingRules.append(rule);
     }
+
+    commentFormat.setForeground(Qt::darkGray);
+
+    rule.pattern = QRegularExpression(";.*$");
+    rule.format = commentFormat;
+    highlightingRules.append(rule);
 
 }
 
