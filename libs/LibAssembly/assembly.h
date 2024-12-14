@@ -146,6 +146,12 @@ signals:
      */
     void lineExecuted(int line);
 
+    /*!
+     *   \brief Посылается при необходимости вывести значение в консоль.
+     *   \param message - сообщение
+     */
+    void outputRequested(QString message);
+
 protected:
     /*!
      *  \brief Менеджер памяти

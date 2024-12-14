@@ -156,6 +156,16 @@ int AMD64Assembly::jump(QString arg) {
 }
 
 void AMD64Assembly::interrupt(int i) {
+    if(i == 0x80) {
+        switch(state.get("rax")) {
+        case 1:
+            emit outputRequested(QString("[SYS WRITE] %1")
+                .arg(QString::number(state.get("rbx"), 16)));
+            return;
+        default:
+            throw std::runtime_error("Unknown syscall");
+        }
+    }
     throw std::runtime_error("Unknown interrupt");
 }
 
@@ -427,6 +437,11 @@ void AMD64Assembly::executeContext(AMD64Assembly::Context& ctx) {
 }
 
 void AMD64Assembly::executeLine(QString line) {
+    line = line.simplified();
+    if(line.isEmpty()) {
+        nextLine = currentLine + 1;
+        return;
+    }
     state.set("rip", currentLine * 8, true);
     Context ctx;
     parseContext(line, &ctx);

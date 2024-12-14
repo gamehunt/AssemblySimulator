@@ -43,6 +43,9 @@ public slots:
     void saveFile(bool as);
     void openFile();
 
+    void out(QString message);
+    void clearCmd();
+
 private slots:
     void updateButtonStates();
     void setFileName(QString name);

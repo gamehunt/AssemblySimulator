@@ -202,6 +202,8 @@ void MainWindow::setAssembly(Assembly* a) {
     }
     QObject::connect(curAssembly->getMemory(), &Memory::memoryChanged, &memory, &MemoryBrowserWidget::refresh);
     QObject::connect(curAssembly, &Assembly::lineExecuted, ui->textEdit, &CodeEdit::setExecutedLine);
+    QObject::connect(curAssembly, &Assembly::outputRequested, this, &MainWindow::out);
+    QObject::connect(ui->clearCmdButton, &QPushButton::clicked, this, &MainWindow::clearCmd);
 }
 
 void MainWindow::updateButtonStates() {
@@ -340,4 +342,12 @@ void MainWindow::help() {
         return;
     }
     helpWindow->show();
+}
+
+void MainWindow::out(QString message) {
+    ui->messagesTextEdit->insertPlainText(message + "\n");
+}
+
+void MainWindow::clearCmd() {
+    ui->messagesTextEdit->clear();
 }
